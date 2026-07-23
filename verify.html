@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+<template id="__bundler_thumbnail"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#173A5E"/><text x="50" y="62" font-size="34" text-anchor="middle" fill="#D4AF37" font-family="Georgia,serif">iAB</text></svg></template></head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="icon" href="assets/iab-favicon.png">
+  <link rel="stylesheet" href="_ds/iab-design-system-8045d98a-4540-47ac-bdd5-541d28879e3c/tokens/fonts.css">
+  <link rel="stylesheet" href="_ds/iab-design-system-8045d98a-4540-47ac-bdd5-541d28879e3c/tokens/colors.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script>window.DEPLOYMENT_CONFIG = { production: true, verificationPage: "./verify.html" };</script><script src="src/engine.js"></script>
+  <style>
+    html, body { margin: 0; background: #0A1628; }
+    body { font-family: 'Archivo', sans-serif; }
+    a { color: #D4AF37; } a:hover { color: #E9D6A0; }
+  </style>
+</helmet>
+<div style="min-height:100vh;background:radial-gradient(1100px 600px at 50% -10%, #1E3150 0%, #0A1628 60%);display:flex;flex-direction:column;align-items:center;padding:56px 20px;box-sizing:border-box">
+  <img src="assets/iab-logo-stacked.png" alt="iAB — Insurance Academy of Botswana" style="width:170px;margin-bottom:30px">
+  <div style="background:#FFFFFF;border-radius:10px;box-shadow:0 18px 50px rgba(4,10,20,0.45);width:460px;max-width:94vw;padding:32px">
+    <div style="font-size:11px;letter-spacing:0.22em;color:#A8801F;font-weight:600;margin-bottom:6px">CERTIFICATE VERIFICATION</div>
+    <div style="font-family:'Newsreader',serif;font-size:24px;color:#16233B;margin-bottom:16px">Verify an iAB certificate</div>
+    <div style="display:flex;gap:8px;margin-bottom:18px">
+      <input value="{{ ref }}" onChange="{{ onRef }}" onKeyDown="{{ onKey }}" placeholder="IAB/CERT/LTI/2026MAR/202607/0001" style="flex:1;border:1px solid #DAD6CC;border-radius:5px;padding:10px 12px;font-size:13px;font-family:'IBM Plex Mono',monospace">
+      <button onClick="{{ onVerify }}" style="background:#0A1628;color:#FFFFFF;border:none;border-radius:5px;padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer" style-hover="background:#1E3150">Verify</button>
+    </div>
+    <sc-if value="{{ note }}" hint-placeholder-val="{{ false }}">
+      <div style="background:{{ noteBg }};color:{{ noteFg }};border-radius:5px;padding:10px 14px;font-size:13px;line-height:1.55">{{ note }}</div>
+    </sc-if>
+    <sc-if value="{{ hasResult }}" hint-placeholder-val="{{ false }}">
+      <div style="border:1px solid #EFEDE7;border-radius:8px;padding:18px;margin-top:6px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#A8801F">{{ rRef }}</span>
+          <span style="font-size:11px;font-weight:700;padding:3px 12px;border-radius:10px;background:{{ stBg }};color:{{ stFg }}">{{ rStatus }}</span>
+        </div>
+        <sc-for list="{{ rows }}" as="r" hint-placeholder-count="4">
+          <div style="display:flex;justify-content:space-between;gap:14px;padding:7px 0;border-bottom:1px solid #F6F4EF;font-size:13px">
+            <span style="color:#5A6474">{{ r.k }}</span><span style="color:#16233B;font-weight:600;text-align:right">{{ r.v }}</span>
+          </div>
+        </sc-for>
+        <div style="font-size:11.5px;color:#5A6474;margin-top:12px;line-height:1.6">This page confirms only the details above. It never displays identity numbers, academic marks or contact information.</div>
+      </div>
+    </sc-if>
+  </div>
+  <div style="color:#AEB8C7;font-size:11.5px;margin-top:20px;text-align:center;line-height:1.7">Insurance Academy of Botswana · BQA ETP No.: ETP0198 · TVET No.: TVET 000700 · HRDC ACCREDITED<br>Study. <span style="color:#D4AF37">Learn.</span> Earn.</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { ref: '', result: null, note: '', noteKind: '' };
+  componentDidMount() {
+    const p = new URLSearchParams(location.search).get('ref');
+    if (p) { this.setState({ ref: p }); setTimeout(() => this.verify(), 300); }
+  }
+  cfg() {
+    try { const db = JSON.parse(localStorage.getItem('iab_cert_registry_v1') || 'null'); return db; } catch (e) { return null; }
+  }
+  async verify() {
+    const ref = this.state.ref.trim();
+    if (!ref) return;
+    this.setState({ result: null, note: 'Checking…', noteKind: 'info' });
+    const db = this.cfg();
+    const st = db && db.settings;
+    // Supabase (production): security-definer RPC exposes only safe fields
+    if (st && st.supabaseUrl && st.supabaseAnonKey && window.supabase) {
+      try {
+        const client = window.supabase.createClient(st.supabaseUrl, st.supabaseAnonKey);
+        const { data, error } = await client.rpc('verify_certificate', { p_reference: ref });
+        if (error) throw error;
+        if (!data) { this.setState({ note: 'No certificate with this reference was found. Check the reference and try again.', noteKind: 'warn' }); return; }
+        this.setState({ result: { reference: data.certificate_reference, name: data.learner_name, course: data.course, intake: data.intake, issue_date: data.issue_date, status: data.status }, note: '' });
+        return;
+      } catch (e) { this.setState({ note: 'Verification service unavailable: ' + e.message, noteKind: 'warn' }); return; }
+    }
+    // Local demo registry fallback
+    const c = db && db.certificates && db.certificates.find(x => x.certificate_reference === ref);
+    if (!c) { this.setState({ note: 'No certificate with this reference was found in the local demo registry. In production this page queries the central iAB register.', noteKind: 'warn' }); return; }
+    this.setState({ result: { reference: c.certificate_reference, name: c.full_name_at_issue, course: c.course_name_at_issue, intake: c.intake_year + (c.intake_month || ''), issue_date: c.issue_date, status: c.status }, note: '' });
+  }
+  renderVals() {
+    const S = this.state, r = S.result;
+    const stC = { 'Issued': ['#E7F1EC', '#1E7A4E'], 'Superseded': ['#EFEDE7', '#5A6474'], 'Revoked': ['#F7E7E3', '#B0402F'] };
+    const sc = r ? (stC[r.status] || stC.Issued) : stC.Issued;
+    return {
+      ref: S.ref,
+      onRef: (e) => this.setState({ ref: e.target.value }),
+      onKey: (e) => { if (e.key === 'Enter') this.verify(); },
+      onVerify: () => this.verify(),
+      note: S.note, noteBg: S.noteKind === 'warn' ? '#FBF1DF' : '#E6EEFB', noteFg: S.noteKind === 'warn' ? '#8A5D12' : '#2E6BD6',
+      hasResult: !!r,
+      rRef: r ? r.reference : '', rStatus: r ? r.status : '', stBg: sc[0], stFg: sc[1],
+      rows: r ? [
+        { k: 'Learner', v: r.name }, { k: 'Course', v: r.course },
+        { k: 'Intake', v: r.intake }, { k: 'Issue date', v: r.issue_date }
+      ] : []
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,63 @@
+/* iAB — Colour tokens
+   Executive palette: deep navy + champagne gold + white.
+   Balance target: Navy 55% · Neutral 30% · Gold 10% · Functional 5%. */
+
+:root {
+  /* ---- Primary brand ---- */
+  --iab-navy: #0A1628;          /* Signature deep navy — primary brand colour */
+  --iab-navy-ink: #16233B;      /* Ink — deepest text / near-black navy */
+  --iab-graphite: #2C374A;      /* Graphite — secondary dark surfaces */
+  --iab-gold: #D4AF37;          /* Champagne gold — metallic, large display only */
+  --iab-gold-print: #C89B2D;    /* Print gold — flat reproduction of the gold */
+  --iab-gold-deep: #A8801F;     /* Deep gold — for gold text needing AA on white */
+  --iab-white: #FFFFFF;
+
+  /* ---- Neutrals ---- */
+  --iab-ivory: #FBF9F5;         /* Warm paper white — premium page ground */
+  --iab-mist: #EFEDE7;          /* Soft rule / card border / hairlines */
+  --iab-slate: #5A6474;         /* Muted body / captions / secondary text */
+
+  /* ---- Gold tints (backgrounds & rules) ---- */
+  --iab-gold-050: #FBF7EC;
+  --iab-gold-100: #F4EBCF;
+  --iab-gold-200: #E9D6A0;
+
+  /* ---- Navy tints ---- */
+  --iab-navy-900: #0A1628;
+  --iab-navy-800: #14233A;
+  --iab-navy-700: #1E3150;
+  --iab-navy-600: #2C4064;
+
+  /* ---- Functional ---- */
+  --iab-success: #1E7A4E;
+  --iab-warning: #C8891F;
+  --iab-error:   #B0402F;
+  --iab-info:    #2E6BD6;
+  --iab-success-bg: #E7F1EC;
+  --iab-warning-bg: #FBF1DF;
+  --iab-error-bg:   #F7E7E3;
+  --iab-info-bg:    #E6EEFB;
+
+  /* ---- Semantic aliases (light surfaces) ---- */
+  --surface-page:    var(--iab-ivory);
+  --surface-card:    var(--iab-white);
+  --surface-sunken:  var(--iab-mist);
+  --surface-navy:    var(--iab-navy);
+  --surface-navy-alt: var(--iab-navy-800);
+
+  --text-strong:     var(--iab-navy-ink);
+  --text-body:       var(--iab-graphite);
+  --text-muted:      var(--iab-slate);
+  --text-on-navy:    var(--iab-white);
+  --text-on-navy-muted: #AEB8C7;
+  --text-gold:       var(--iab-gold-deep);
+
+  --border-hairline: var(--iab-mist);
+  --border-strong:   #DAD6CC;
+  --border-navy:     var(--iab-navy-600);
+
+  --accent-gold:     var(--iab-gold-print);
+  --accent-gold-metallic: var(--iab-gold);
+
+  --focus-ring:      var(--iab-info);
+}

@@ -1,0 +1,106 @@
+/* iAB — Base element styles & utility primitives.
+   Kept minimal: resets, typographic defaults, link colours, helper classes
+   used by specimen cards and UI kits. Components style themselves via tokens. */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  color: var(--text-body);
+  background: var(--surface-page);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  color: var(--text-strong);
+  font-weight: var(--fw-medium);
+  line-height: var(--lh-heading);
+  letter-spacing: var(--ls-heading);
+  margin: 0 0 0.4em;
+  text-wrap: balance;
+}
+h1 { font-size: var(--fs-h1); }
+h2 { font-size: var(--fs-h2); }
+h3 { font-size: var(--fs-h3); }
+h4 { font-size: var(--fs-h4); font-family: var(--font-sans); font-weight: var(--fw-semibold); }
+
+p { margin: 0 0 1em; max-width: var(--measure-body); text-wrap: pretty; }
+
+a {
+  color: var(--iab-navy);
+  text-decoration: none;
+  border-bottom: 1px solid var(--iab-gold-200);
+  transition: color var(--dur-fast) var(--ease-standard),
+              border-color var(--dur-fast) var(--ease-standard);
+}
+a:hover { color: var(--iab-gold-deep); border-color: var(--iab-gold-deep); }
+
+/* ---- Editorial helpers ---- */
+.iab-display {
+  font-family: var(--font-display);
+  font-size: var(--fs-display);
+  line-height: var(--lh-display);
+  letter-spacing: var(--ls-display);
+  color: var(--text-strong);
+  font-weight: var(--fw-medium);
+}
+.iab-overline {
+  font-family: var(--font-sans);
+  font-size: var(--fs-overline);
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--ls-overline);
+  text-transform: uppercase;
+  color: var(--text-gold);
+}
+.iab-caption {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+/* The gold rule motif */
+.iab-rule-gold {
+  height: var(--rule-gold);
+  border: 0;
+  background: linear-gradient(90deg, var(--iab-gold-print), var(--iab-gold) 50%, var(--iab-gold-print));
+  width: 100%;
+}
+
+/* The dot motif — the i's dot as an accent marker */
+.iab-dot {
+  display: inline-block;
+  width: 0.5em;
+  height: 0.5em;
+  border-radius: 50%;
+  background: var(--iab-gold-print);
+  vertical-align: middle;
+}
+
+/* Navy panel */
+.iab-panel-navy {
+  background: var(--surface-navy);
+  color: var(--text-on-navy);
+  box-shadow: var(--glow-gold) inset;
+}
+
+/* Corner keylines — L-brackets framing hero panels & covers */
+.iab-keylines {
+  position: relative;
+}
+.iab-keylines::before,
+.iab-keylines::after {
+  content: "";
+  position: absolute;
+  width: 28px; height: 28px;
+  border: 1px solid var(--iab-gold-print);
+}
+.iab-keylines::before { top: 14px; left: 14px; border-right: 0; border-bottom: 0; }
+.iab-keylines::after { bottom: 14px; right: 14px; border-left: 0; border-top: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+}

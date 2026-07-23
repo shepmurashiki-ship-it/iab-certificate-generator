@@ -1,0 +1,43 @@
+/* iAB — Typography tokens
+   Editorial pairing: Newsreader (display serif) + Archivo (text grotesque).
+   Both open-licensed (SIL OFL). System fallbacks: Georgia / Arial. */
+
+:root {
+  --font-display: "Newsreader", Georgia, "Times New Roman", serif;
+  --font-sans: "Archivo", Arial, Helvetica, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  /* Type scale (rem, 16px base) */
+  --fs-display: 4.5rem;   /* 72 — hero display */
+  --fs-h1: 3rem;          /* 48 */
+  --fs-h2: 2.25rem;       /* 36 */
+  --fs-h3: 1.5rem;        /* 24 */
+  --fs-h4: 1.25rem;       /* 20 */
+  --fs-lg: 1.125rem;      /* 18 */
+  --fs-body: 1rem;        /* 16 */
+  --fs-sm: 0.875rem;      /* 14 */
+  --fs-xs: 0.75rem;       /* 12 */
+  --fs-overline: 0.75rem; /* 12 tracked caps */
+
+  /* Weights */
+  --fw-regular: 400; /* @kind other */
+  --fw-medium: 500; /* @kind other */
+  --fw-semibold: 600; /* @kind other */
+  --fw-bold: 700; /* @kind other */
+
+  /* Line heights */
+  --lh-display: 1.05; /* @kind other */
+  --lh-heading: 1.15; /* @kind other */
+  --lh-body: 1.6; /* @kind other */
+  --lh-tight: 1.3; /* @kind other */
+
+  /* Tracking */
+  --ls-display: -0.02em;  /* tight on display */
+  --ls-heading: -0.01em;
+  --ls-body: 0em;
+  --ls-overline: 0.2em;   /* +0.2em on uppercase overlines */
+  --ls-caps: 0.08em;
+
+  /* Semantic */
+  --measure-body: 68ch;   /* 60–75 chars per line */
+}

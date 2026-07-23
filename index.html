@@ -1,0 +1,1342 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+<template id="__bundler_thumbnail"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#173A5E"/><text x="50" y="62" font-size="34" text-anchor="middle" fill="#D4AF37" font-family="Georgia,serif">iAB</text></svg></template></head>
+<body>
+<!-- iAB Certificate Generator — PRODUCTION build. Requires Supabase configuration (see README.md). -->
+<x-dc>
+<helmet>
+  <link rel="icon" href="assets/iab-favicon.png">
+  <link rel="stylesheet" href="_ds/iab-design-system-8045d98a-4540-47ac-bdd5-541d28879e3c/tokens/fonts.css">
+  <link rel="stylesheet" href="_ds/iab-design-system-8045d98a-4540-47ac-bdd5-541d28879e3c/tokens/colors.css">
+  <link rel="stylesheet" href="_ds/iab-design-system-8045d98a-4540-47ac-bdd5-541d28879e3c/tokens/typography.css">
+  <link rel="stylesheet" href="_ds/iab-design-system-8045d98a-4540-47ac-bdd5-541d28879e3c/tokens/spacing.css">
+  <link rel="stylesheet" href="_ds/iab-design-system-8045d98a-4540-47ac-bdd5-541d28879e3c/tokens/base.css">
+  <link rel="stylesheet" href="_ds/iab-design-system-8045d98a-4540-47ac-bdd5-541d28879e3c/styles.css">
+  <script src="_ds/iab-design-system-8045d98a-4540-47ac-bdd5-541d28879e3c/_ds_bundle.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@pdf-lib/fontkit@1.1.1/dist/fontkit.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script>window.DEPLOYMENT_CONFIG = { production: true, verificationPage: "./verify.html" };</script><script src="src/engine.js"></script>
+  <style>
+    html, body { margin: 0; padding: 0; background: #F2F0EA; }
+    body { font-family: 'Archivo', sans-serif; color: #16233B; }
+    a { color: #A8801F; text-decoration: none; }
+    a:hover { color: #C89B2D; text-decoration: underline; }
+    input, select, textarea, button { font-family: 'Archivo', sans-serif; }
+    @keyframes iabspin { to { transform: rotate(360deg); } }
+    ::selection { background: #E9D6A0; }
+  </style>
+</helmet>
+<div style="min-height:100vh;display:flex;flex-direction:column">
+
+<!-- ======================= LOGIN ======================= -->
+<sc-if value="{{ isLogin }}" hint-placeholder-val="{{ true }}">
+  <div style="min-height:100vh;background:radial-gradient(1200px 700px at 50% -10%, #1E3150 0%, #0A1628 55%, #060D19 100%);display:flex;align-items:center;justify-content:center;padding:32px">
+    <div style="width:400px;max-width:94vw">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:8px;margin-bottom:28px">
+        <img src="assets/iab-logo-stacked.png" alt="iAB — Insurance Academy of Botswana" style="width:190px;display:block">
+      </div>
+      <div style="background:#FFFFFF;border:1px solid #EFEDE7;border-radius:10px;box-shadow:0 18px 50px rgba(4,10,20,0.45);padding:32px">
+        <div style="font-size:11px;letter-spacing:0.22em;color:#A8801F;font-weight:600;margin-bottom:6px">CERTIFICATE MANAGEMENT</div>
+        <div style="font-family:'Newsreader',serif;font-size:26px;color:#16233B;line-height:1.15;margin-bottom:4px">Staff sign in</div>
+        <div style="font-size:13px;color:#5A6474;margin-bottom:22px">Certificate generator, register &amp; reprint system</div>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <label style="display:flex;flex-direction:column;gap:6px">
+            <span style="font-size:11px;letter-spacing:0.1em;color:#5A6474;font-weight:600">EMAIL</span>
+            <input type="email" value="{{ email }}" onChange="{{ onEmail }}" placeholder="name@iab.co.bw" style="border:1px solid #DAD6CC;border-radius:5px;padding:10px 12px;font-size:14px;outline-color:#2E6BD6">
+          </label>
+          <label style="display:flex;flex-direction:column;gap:6px">
+            <span style="font-size:11px;letter-spacing:0.1em;color:#5A6474;font-weight:600">PASSWORD</span>
+            <input type="password" value="{{ pw }}" onChange="{{ onPw }}" onKeyDown="{{ onPwKey }}" style="border:1px solid #DAD6CC;border-radius:5px;padding:10px 12px;font-size:14px;outline-color:#2E6BD6">
+          </label>
+          <sc-if value="{{ err }}" hint-placeholder-val="{{ false }}">
+            <div style="background:#F7E7E3;color:#B0402F;border-radius:5px;padding:9px 12px;font-size:13px">{{ err }}</div>
+          </sc-if>
+          <button onClick="{{ onLogin }}" style="background:#0A1628;color:#FFFFFF;border:none;border-radius:5px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;letter-spacing:0.04em" style-hover="background:#1E3150">{{ loginLabel }}</button>
+          <sc-if value="{{ showSetupBtn }}" hint-placeholder-val="{{ false }}">
+            <div style="background:#FBF1DF;color:#8A5D12;border-radius:5px;padding:9px 12px;font-size:12.5px;line-height:1.5">Production database and authentication have not yet been configured.</div>
+            <button onClick="{{ openSetup }}" style="background:#FFFFFF;color:#16233B;border:1px solid #C89B2D;border-radius:5px;padding:11px;font-size:12.5px;font-weight:600;cursor:pointer;letter-spacing:0.06em" style-hover="background:#FBF7EC">CONFIGURE SUPABASE CONNECTION</button>
+          </sc-if>
+        </div>
+        <sc-if value="{{ showDemoHint }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-top:18px;border-top:1px solid #EFEDE7;padding-top:14px;font-size:12px;color:#5A6474;line-height:1.6">
+            <strong style="color:#16233B">Local demo mode</strong> — no Supabase configured yet. Sign in with
+            <span style="font-family:'IBM Plex Mono',monospace">admin@iab.co.bw</span>, <span style="font-family:'IBM Plex Mono',monospace">issuer@iab.co.bw</span> or <span style="font-family:'IBM Plex Mono',monospace">viewer@iab.co.bw</span> — password <span style="font-family:'IBM Plex Mono',monospace">iab2026</span>. Connect Supabase in Settings for shared, secured records.
+          </div>
+        </sc-if>
+      </div>
+      <div style="text-align:center;margin-top:18px;font-size:11.5px;color:#AEB8C7">Learner information and certificates are stored securely and may be accessed only by authorised iAB staff.</div>
+    </div>
+  </div>
+</sc-if>
+
+<!-- ======================= APP SHELL ======================= -->
+<sc-if value="{{ isApp }}" hint-placeholder-val="{{ false }}">
+  <div style="background:#0A1628;border-bottom:2px solid #C89B2D">
+    <div style="max-width:1240px;margin:0 auto;padding:0 24px;display:flex;align-items:center;gap:28px;height:64px">
+      <div style="display:flex;align-items:center;gap:12px">
+        <img src="assets/iab-logo-mark.png" alt="iAB" style="height:32px;display:block">
+        <div style="border-left:1px solid #2C4064;padding-left:12px">
+          <div style="color:#FFFFFF;font-size:11px;letter-spacing:0.14em;font-weight:600;line-height:1.3">INSURANCE ACADEMY<br>OF BOTSWANA</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:4px;flex:1">
+        <button data-view="dashboard" onClick="{{ nav }}" style="{{ navStyleDashboard }}">Dashboard</button>
+        <button data-view="import" onClick="{{ nav }}" style="{{ navStyleImport }}">Import &amp; Issue</button>
+        <button data-view="register" onClick="{{ nav }}" style="{{ navStyleRegister }}">Register</button>
+        <button data-view="settings" onClick="{{ nav }}" style="{{ navStyleSettings }}">Settings</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="text-align:right">
+          <div style="color:#FFFFFF;font-size:12.5px;font-weight:600">{{ userName }}</div>
+          <div style="color:#AEB8C7;font-size:10.5px;letter-spacing:0.08em">{{ userRole }} · {{ modeLabel }}</div>
+        </div>
+        <button onClick="{{ onLogout }}" style="background:transparent;color:#AEB8C7;border:1px solid #2C4064;border-radius:5px;padding:7px 12px;font-size:12px;cursor:pointer" style-hover="color:#FFFFFF;border-color:#C89B2D">Sign out</button>
+      </div>
+    </div>
+  </div>
+
+  <div style="flex:1;max-width:1240px;width:100%;margin:0 auto;padding:28px 24px 60px;box-sizing:border-box">
+
+  <!-- ======================= DASHBOARD ======================= -->
+  <sc-if value="{{ isDashboard }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:20px">
+      <div>
+        <h1 style="font-family:'Newsreader',serif;font-size:30px;margin:0;color:#16233B;font-weight:500">Certificate dashboard</h1>
+        <div style="color:#5A6474;font-size:13.5px;margin-top:4px">{{ todayLong }}</div>
+      </div>
+      <div style="display:flex;gap:10px">
+        <button onClick="{{ downloadTemplate }}" style="background:#FFFFFF;border:1px solid #DAD6CC;border-radius:5px;padding:9px 16px;font-size:13px;color:#16233B;cursor:pointer" style-hover="border-color:#C89B2D">Download import template</button>
+        <button data-view="import" onClick="{{ nav }}" style="background:#0A1628;color:#FFFFFF;border:none;border-radius:5px;padding:9px 18px;font-size:13px;font-weight:600;cursor:pointer" style-hover="background:#1E3150">Upload results</button>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:14px">
+      <sc-for list="{{ statCards }}" as="s" hint-placeholder-count="4">
+        <div style="background:#FFFFFF;border:1px solid #EFEDE7;border-radius:8px;padding:18px 20px;box-shadow:0 1px 3px rgba(10,22,40,0.05)">
+          <div style="font-size:10.5px;letter-spacing:0.14em;color:#5A6474;font-weight:600">{{ s.label }}</div>
+          <div style="font-family:'Newsreader',serif;font-size:34px;color:{{ s.color }};margin-top:6px;line-height:1">{{ s.value }}</div>
+          <div style="font-size:11.5px;color:#5A6474;margin-top:6px">{{ s.sub }}</div>
+        </div>
+      </sc-for>
+    </div>
+    <div style="display:grid;grid-template-columns:1.1fr 1.5fr;gap:14px">
+      <div style="background:#FFFFFF;border:1px solid #EFEDE7;border-radius:8px;padding:20px 22px">
+        <div style="font-size:11px;letter-spacing:0.14em;color:#5A6474;font-weight:600;margin-bottom:14px">ISSUED BY COURSE</div>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <sc-for list="{{ courseBars }}" as="b" hint-placeholder-count="4">
+            <div>
+              <div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:4px"><span style="color:#16233B">{{ b.code }} — {{ b.short }}</span><span style="color:#5A6474">{{ b.count }}</span></div>
+              <div style="height:6px;background:#EFEDE7;border-radius:3px"><div style="height:6px;background:#C89B2D;border-radius:3px;width:{{ b.pct }}%"></div></div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="border-top:1px solid #EFEDE7;margin-top:18px;padding-top:14px;font-size:12.5px;color:#5A6474;line-height:1.7">
+          <div style="font-size:11px;letter-spacing:0.14em;font-weight:600;margin-bottom:6px">LATEST IMPORT</div>
+          {{ latestBatchText }}
+        </div>
+      </div>
+      <div style="background:#FFFFFF;border:1px solid #EFEDE7;border-radius:8px;padding:20px 22px">
+        <div style="font-size:11px;letter-spacing:0.14em;color:#5A6474;font-weight:600;margin-bottom:10px">RECENT CERTIFICATE ACTIVITY</div>
+        <sc-if value="{{ hasActivity }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;flex-direction:column">
+            <sc-for list="{{ recentEvents }}" as="e" hint-placeholder-count="5">
+              <div style="display:flex;gap:12px;align-items:baseline;padding:9px 0;border-bottom:1px solid #F6F4EF;font-size:13px">
+                <span style="width:7px;height:7px;border-radius:50%;background:{{ e.dot }};flex:none;position:relative;top:-1px"></span>
+                <span style="color:#16233B;font-weight:600;flex:none;width:92px">{{ e.type }}</span>
+                <span style="color:#2C374A;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ e.text }}</span>
+                <span style="color:#5A6474;font-size:11.5px;flex:none">{{ e.when }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+        <sc-if value="{{ noActivity }}" hint-placeholder-val="{{ false }}">
+          <div style="color:#5A6474;font-size:13.5px;padding:30px 0;text-align:center">No certificates issued yet. Upload a results workbook to begin.</div>
+        </sc-if>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ======================= IMPORT WIZARD ======================= -->
+  <sc-if value="{{ isImport }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;align-items:center;gap:18px;margin-bottom:22px">
+      <h1 style="font-family:'Newsreader',serif;font-size:30px;margin:0;color:#16233B;font-weight:500">Import &amp; issue</h1>
+      <div style="display:flex;gap:8px;align-items:center;font-size:12px;color:#5A6474">
+        <sc-for list="{{ wizardSteps }}" as="w" hint-placeholder-count="4">
+          <span style="display:flex;align-items:center;gap:8px">
+            <span style="width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;background:{{ w.bg }};color:{{ w.fg }};border:1px solid {{ w.border }}">{{ w.n }}</span>
+            <span style="color:{{ w.labelColor }}">{{ w.label }}</span>
+            <sc-if value="{{ w.arrow }}" hint-placeholder-val="{{ true }}"><span style="color:#DAD6CC">—</span></sc-if>
+          </span>
+        </sc-for>
+      </div>
+    </div>
+
+    <!-- Step 1: upload -->
+    <sc-if value="{{ impStep1 }}" hint-placeholder-val="{{ true }}">
+      <div style="background:#FFFFFF;border:1px solid #EFEDE7;border-radius:8px;padding:40px;display:flex;flex-direction:column;align-items:center;gap:14px">
+        <div style="width:64px;height:64px;border-radius:50%;background:#FBF7EC;border:1px solid #E9D6A0;display:flex;align-items:center;justify-content:center">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#A8801F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+        </div>
+        <div style="font-family:'Newsreader',serif;font-size:22px;color:#16233B">Upload a learner-results file</div>
+        <div style="font-size:13.5px;color:#5A6474;text-align:center;max-width:460px;line-height:1.6">Excel is the preferred format (.xlsx, .xls); .csv is also accepted. The uploaded workbook is read locally and never modified or published.</div>
+        <label style="background:#0A1628;color:#FFFFFF;border-radius:5px;padding:11px 22px;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#1E3150">
+          Choose file…
+          <input type="file" accept=".xlsx,.xls,.csv" onChange="{{ onFile }}" style="display:none">
+        </label>
+        <button onClick="{{ downloadTemplate }}" style="background:none;border:none;color:#A8801F;font-size:13px;cursor:pointer;text-decoration:underline">Download the certificate import template</button>
+        <sc-if value="{{ err }}" hint-placeholder-val="{{ false }}"><div style="background:#F7E7E3;color:#B0402F;border-radius:5px;padding:9px 14px;font-size:13px">{{ err }}</div></sc-if>
+      </div>
+    </sc-if>
+
+    <!-- Step 2: worksheet -->
+    <sc-if value="{{ impStep2 }}" hint-placeholder-val="{{ false }}">
+      <div style="background:#FFFFFF;border:1px solid #EFEDE7;border-radius:8px;padding:28px">
+        <div style="font-family:'Newsreader',serif;font-size:20px;color:#16233B;margin-bottom:4px">Select the worksheet</div>
+        <div style="font-size:13px;color:#5A6474;margin-bottom:18px">{{ impFileLine }}</div>
+        <div style="display:flex;flex-direction:column;gap:8px;max-width:520px">
+          <sc-for list="{{ sheetOptions }}" as="sh" hint-placeholder-count="2">
+            <button data-sheet="{{ sh.name }}" onClick="{{ onSheetPick }}" style="text-align:left;background:#FBF9F5;border:1px solid #EFEDE7;border-radius:6px;padding:14px 18px;cursor:pointer;display:flex;justify-content:space-between;align-items:center" style-hover="border-color:#C89B2D;background:#FFFFFF">
+              <span style="font-size:14px;font-weight:600;color:#16233B">{{ sh.name }}</span>
+              <span style="font-size:12px;color:#5A6474">{{ sh.info }}</span>
+            </button>
+          </sc-for>
+        </div>
+        <button onClick="{{ impRestart }}" style="margin-top:18px;background:none;border:none;color:#5A6474;font-size:13px;cursor:pointer;text-decoration:underline">Choose a different file</button>
+      </div>
+    </sc-if>
+
+    <!-- Step 3: mapping -->
+    <sc-if value="{{ impStep3 }}" hint-placeholder-val="{{ false }}">
+      <div style="background:#FFFFFF;border:1px solid #EFEDE7;border-radius:8px;padding:28px">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px">
+          <div style="font-family:'Newsreader',serif;font-size:20px;color:#16233B">Confirm column mapping</div>
+          <button onClick="{{ onMapReset }}" style="background:none;border:none;color:#A8801F;font-size:12.5px;cursor:pointer;text-decoration:underline">Reset to auto-detected</button>
+        </div>
+        <div style="font-size:13px;color:#5A6474;margin-bottom:18px">Columns were detected by heading name (not fixed letters). Correct any mapping before continuing — the saved mapping is remembered for future imports.</div>
+        <table style="width:100%;border-collapse:collapse;font-size:13px">
+          <thead><tr>
+            <th style="text-align:left;padding:8px 10px;border-bottom:2px solid #16233B;font-size:10.5px;letter-spacing:0.12em;color:#5A6474">APPLICATION FIELD</th>
+            <th style="text-align:left;padding:8px 10px;border-bottom:2px solid #16233B;font-size:10.5px;letter-spacing:0.12em;color:#5A6474">SPREADSHEET COLUMN</th>
+            <th style="text-align:left;padding:8px 10px;border-bottom:2px solid #16233B;font-size:10.5px;letter-spacing:0.12em;color:#5A6474">STATUS</th>
+            <th style="text-align:left;padding:8px 10px;border-bottom:2px solid #16233B;font-size:10.5px;letter-spacing:0.12em;color:#5A6474">SAMPLE</th>
+          </tr></thead>
+          <tbody>
+            <sc-for list="{{ mappingRows }}" as="m" hint-placeholder-count="8">
+              <tr>
+                <td style="padding:7px 10px;border-bottom:1px solid #F6F4EF;color:#16233B;font-weight:600">{{ m.label }}<sc-if value="{{ m.required }}" hint-placeholder-val="{{ false }}"><span style="color:#B0402F"> *</span></sc-if></td>
+                <td style="padding:7px 10px;border-bottom:1px solid #F6F4EF">
+                  <select data-field="{{ m.key }}" value="{{ m.col }}" onChange="{{ onMapChange }}" style="border:1px solid #DAD6CC;border-radius:4px;padding:6px 8px;font-size:12.5px;min-width:230px;background:#FFFFFF">
+                    <option value="-1">— not mapped —</option>
+                    <sc-for list="{{ headerOpts }}" as="h" hint-placeholder-count="3">
+                      <option value="{{ h.i }}">{{ h.label }}</option>
+                    </sc-for>
+                  </select>
+                </td>
+                <td style="padding:7px 10px;border-bottom:1px solid #F6F4EF"><span style="font-size:11px;font-weight:700;letter-spacing:0.06em;padding:3px 9px;border-radius:10px;background:{{ m.badgeBg }};color:{{ m.badgeFg }}">{{ m.badge }}</span></td>
+                <td style="padding:7px 10px;border-bottom:1px solid #F6F4EF;color:#5A6474;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ m.sample }}</td>
+              </tr>
+            </sc-for>
+          </tbody>
+        </table>
+        <sc-if value="{{ mapWarning }}" hint-placeholder-val="{{ false }}"><div style="margin-top:14px;background:#FBF1DF;color:#8A5D12;border-radius:5px;padding:10px 14px;font-size:13px">{{ mapWarning }}</div></sc-if>
+        <div style="display:flex;gap:10px;margin-top:20px">
+          <button onClick="{{ onMapConfirm }}" style="background:#0A1628;color:#FFFFFF;border:none;border-radius:5px;padding:11px 22px;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#1E3150">Validate learners</button>
+          <button onClick="{{ impBackToSheets }}" style="background:#FFFFFF;border:1px solid #DAD6CC;border-radius:5px;padding:11px 18px;font-size:13px;color:#16233B;cursor:pointer">Back</button>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- Step 4: validation + issue -->
+    <sc-if value="{{ impStep4 }}" hint-placeholder-val="{{ false }}">
+      <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:14px">
+        <sc-for list="{{ impStatCards }}" as="s" hint-placeholder-count="6">
+          <div style="background:#FFFFFF;border:1px solid #EFEDE7;border-radius:7px;padding:12px 14px">
+            <div style="font-size:10px;letter-spacing:0.1em;color:#5A6474;font-weight:600">{{ s.label }}</div>
+            <div style="font-family:'Newsreader',serif;font-size:24px;color:{{ s.color }};margin-top:3px">{{ s.value }}</div>
+          </div>
+        </sc-for>
+      </div>
+      <div style="background:#FFFFFF;border:1px solid #EFEDE7;border-radius:8px;padding:22px">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:14px">
+          <div style="font-size:13px;color:#5A6474">{{ impFileLine }} · <button onClick="{{ impBackToMapping }}" style="background:none;border:none;color:#A8801F;cursor:pointer;font-size:13px;text-decoration:underline;padding:0">edit mapping</button></div>
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+            <label style="display:flex;align-items:center;gap:8px;font-size:12.5px;color:#5A6474">Issue date
+              <input type="date" value="{{ impIssueDate }}" onChange="{{ onIssueDate }}" disabled="{{ issueDateLocked }}" style="border:1px solid #DAD6CC;border-radius:4px;padding:6px 8px;font-size:12.5px">
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:12.5px;color:#5A6474"><input type="checkbox" checked="{{ showOnlyEligible }}" onChange="{{ toggleOnlyEligible }}"> eligible only</label>
+            <button onClick="{{ bulkStart }}" disabled="{{ bulkDisabled }}" style="background:#0A1628;color:#FFFFFF;border:none;border-radius:5px;padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer;opacity:{{ bulkBtnOpacity }}" style-hover="background:#1E3150">Generate {{ selCount }} selected → ZIP</button>
+          </div>
+        </div>
+        <table style="width:100%;border-collapse:collapse;font-size:12.5px">
+          <thead><tr>
+            <th style="padding:7px 8px;border-bottom:2px solid #16233B"><input type="checkbox" checked="{{ allSelected }}" onChange="{{ toggleAll }}"></th>
+            <th style="text-align:left;padding:7px 8px;border-bottom:2px solid #16233B;font-size:10.5px;letter-spacing:0.1em;color:#5A6474">LEARNER</th>
+            <th style="text-align:left;padding:7px 8px;border-bottom:2px solid #16233B;font-size:10.5px;letter-spacing:0.1em;color:#5A6474">ID</th>
+            <th style="text-align:left;padding:7px 8px;border-bottom:2px solid #16233B;font-size:10.5px;letter-spacing:0.1em;color:#5A6474">COURSE</th>
+            <th style="text-align:left;padding:7px 8px;border-bottom:2px solid #16233B;font-size:10.5px;letter-spacing:0.1em;color:#5A6474">MARKS</th>
+            <th style="text-align:left;padding:7px 8px;border-bottom:2px solid #16233B;font-size:10.5px;letter-spacing:0.1em;color:#5A6474">PAYMENT</th>
+            <th style="text-align:left;padding:7px 8px;border-bottom:2px solid #16233B;font-size:10.5px;letter-spacing:0.1em;color:#5A6474">STATUS</th>
+            <th style="text-align:right;padding:7px 8px;border-bottom:2px solid #16233B;font-size:10.5px;letter-spacing:0.1em;color:#5A6474">ACTIONS</th>
+          </tr></thead>
+          <tbody>
+            <sc-for list="{{ learnerRows }}" as="r" hint-placeholder-count="8">
+              <tr style="background:{{ r.rowBg }}">
+                <td style="padding:6px 8px;border-bottom:1px solid #F6F4EF;text-align:center"><input type="checkbox" checked="{{ r.sel }}" disabled="{{ r.selDisabled }}" data-idx="{{ r.rowIndex }}" onChange="{{ toggleRow }}"></td>
+                <td style="padding:6px 8px;border-bottom:1px solid #F6F4EF"><div style="font-weight:600;color:#16233B">{{ r.name }}</div><div style="color:#5A6474;font-size:11px">{{ r.reg }}</div></td>
+                <td style="padding:6px 8px;border-bottom:1px solid #F6F4EF;color:#2C374A;font-family:'IBM Plex Mono',monospace;font-size:11.5px">{{ r.idMasked }}</td>
+                <td style="padding:6px 8px;border-bottom:1px solid #F6F4EF;color:#2C374A">{{ r.course }}</td>
+                <td style="padding:6px 8px;border-bottom:1px solid #F6F4EF;color:#2C374A;white-space:nowrap">{{ r.marks }}</td>
+                <td style="padding:6px 8px;border-bottom:1px solid #F6F4EF"><span style="font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:9px;background:{{ r.payBg }};color:{{ r.payFg }}">{{ r.pay }}</span></td>
+                <td style="padding:6px 8px;border-bottom:1px solid #F6F4EF;max-width:260px"><span style="font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:9px;background:{{ r.stBg }};color:{{ r.stFg }}">{{ r.status }}</span><div style="color:#8A5D12;font-size:10.5px;margin-top:2px;line-height:1.4">{{ r.detail }}</div></td>
+                <td style="padding:6px 8px;border-bottom:1px solid #F6F4EF;text-align:right;white-space:nowrap">
+                  <button data-idx="{{ r.rowIndex }}" onClick="{{ openPreview }}" style="background:none;border:1px solid #DAD6CC;border-radius:4px;padding:4px 10px;font-size:11.5px;color:#16233B;cursor:pointer;margin-left:6px" style-hover="border-color:#C89B2D">Preview</button>
+                  <sc-if value="{{ r.canOverride }}" hint-placeholder-val="{{ false }}">
+                    <button data-idx="{{ r.rowIndex }}" onClick="{{ openOverride }}" style="background:none;border:1px solid #E9D6A0;border-radius:4px;padding:4px 10px;font-size:11.5px;color:#A8801F;cursor:pointer;margin-left:6px" style-hover="background:#FBF7EC">Override</button>
+                  </sc-if>
+                  <sc-if value="{{ r.issued }}" hint-placeholder-val="{{ false }}">
+                    <button data-id="{{ r.certId }}" onClick="{{ openRecord }}" style="background:none;border:1px solid #DAD6CC;border-radius:4px;padding:4px 10px;font-size:11.5px;color:#16233B;cursor:pointer;margin-left:6px">View record</button>
+                  </sc-if>
+                </td>
+              </tr>
+            </sc-for>
+          </tbody>
+        </table>
+      </div>
+    </sc-if>
+  </sc-if>
+
+  <!-- ======================= PREVIEW ======================= -->
+  <sc-if value="{{ isPreview }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:12px">
+      <div style="display:flex;align-items:center;gap:14px">
+        <button onClick="{{ backToValidation }}" style="background:#FFFFFF;border:1px solid #DAD6CC;border-radius:5px;padding:8px 14px;font-size:13px;cursor:pointer;color:#16233B">← Validation</button>
+        <div>
+          <div style="font-family:'Newsreader',serif;font-size:22px;color:#16233B">{{ pvName }}</div>
+          <div style="font-size:12px;color:#5A6474">{{ pvMeta }}</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button onClick="{{ prevLearner }}" style="background:#FFFFFF;border:1px solid #DAD6CC;border-radius:5px;padding:8px 12px;cursor:pointer;font-size:13px">‹ Prev</button>
+        <span style="font-size:12px;color:#5A6474">{{ pvCounter }}</span>
+        <button onClick="{{ nextLearner }}" style="background:#FFFFFF;border:1px solid #DAD6CC;border-radius:5px;padding:8px 12px;cursor:pointer;font-size:13px">Next ›</button>
+        <span style="width:1px;height:24px;background:#DAD6CC;margin:0 4px"></span>
+        <button onClick="{{ zoomOut }}" style="background:#FFFFFF;border:1px solid #DAD6CC;border-radius:5px;padding:8px 12px;cursor:pointer;font-size:13px">−</button>
+        <button onClick="{{ zoomFit }}" style="background:#FFFFFF;border:1px solid #DAD6CC;border-radius:5px;padding:8px 12px;cursor:pointer;font-size:12px">Fit</button>
+        <button onClick="{{ zoom100 }}" style="background:#FFFFFF;border:1px solid #DAD6CC;border-radius:5px;padding:8px 12px;cursor:pointer;font-size:12px">100%</button>
+        <button onClick="{{ zoomIn }}" style="background:#FFFFFF;border:1px solid #DAD6CC;border-radius:5px;padding:8px 12px;cursor:pointer;font-size:13px">+</button>
+        <span style="width:1px;height:24px;background:#DAD6CC;margin:0 4px"></span>
+        <button onClick="{{ issueCurrent }}" disabled="{{ pvIssueDisabled }}" style="background:#0A1628;color:#FFFFFF;border:none;border-radius:5px;padding:9px 20px;font-size:13px;font-weight:600;cursor:pointer;opacity:{{ pvIssueOpacity }}" style-hover="background:#1E3150">{{ pvIssueLabel }}</button>
+      </div>
+    </div>
+    <sc-if value="{{ pvBlockNote }}" hint-placeholder-val="{{ false }}">
+      <div style="background:#FBF1DF;border:1px solid #E9D6A0;color:#8A5D12;border-radius:6px;padding:10px 16px;font-size:13px;margin-bottom:14px">{{ pvBlockNote }}</div>
+    </sc-if>
+    <div style="background:#2C374A;border-radius:10px;padding:34px;display:flex;justify-content:center;overflow:auto">
+      <div style="width:calc(210mm * {{ zoom }});height:calc(297mm * {{ zoom }});flex:none">
+        <div style="width:210mm;height:297mm;transform:scale({{ zoom }});transform-origin:top left;background:#FFFFFF url(assets/cert-bg-v9.jpg);background-size:100% 100%;position:relative;box-shadow:0 20px 60px rgba(0,0,0,0.5);overflow:hidden">
+          <!-- title block (left feature and brand band are baked art) -->
+          <div style="position:absolute;left:64mm;top:29mm;width:132mm;text-align:center;color:#173A5E;font-family:'Newsreader',serif;font-size:38pt;letter-spacing:0.06em;line-height:1">CERTIFICATE</div>
+          <div style="position:absolute;left:64mm;top:47.5mm;width:132mm;text-align:center;color:#A8801F;font-size:12.5pt;letter-spacing:0.34em;text-indent:0.34em">OF PROFICIENCY</div>
+          <div style="position:absolute;left:114mm;top:58mm;width:32mm;border-top:0.8px solid #C89B2D"></div>
+          <div style="position:absolute;left:129.3mm;top:57.3mm;width:1.4mm;height:1.4mm;border-radius:50%;background:#C89B2D"></div>
+          <!-- ceremonial content -->
+          <div style="position:absolute;left:64mm;top:65.5mm;width:132mm;text-align:center;color:#5A6474;font-family:'Newsreader',serif;font-style:italic;font-size:13.5pt">This is to certify that</div>
+          <div style="position:absolute;left:55mm;top:78.5mm;width:150mm;text-align:center;color:#173A5E;font-family:'Newsreader',serif;font-size:{{ pvNameSize }}pt;line-height:1.05;white-space:nowrap;overflow:visible">{{ pvName }}</div>
+          <div style="position:absolute;left:80mm;top:94mm;width:100mm;border-top:0.5px solid #C89B2D"></div>
+          <div style="position:absolute;left:129mm;top:93mm;width:2mm;height:2mm;background:#C89B2D;transform:rotate(45deg)"></div>
+          <div style="position:absolute;left:64mm;top:98mm;width:132mm;text-align:center;color:#5A6474;font-size:9.5pt;letter-spacing:0.04em">{{ pvIdLine }}</div>
+          <div style="position:absolute;left:79mm;top:108.5mm;width:102mm;text-align:center;color:#5A6474;font-size:9.5pt;line-height:1.7">{{ pvWording }}</div>
+          <div style="position:absolute;left:69mm;top:125.5mm;width:122mm;text-align:center;color:#173A5E;font-family:'Newsreader',serif;font-size:19pt;line-height:1.32">{{ pvCourse }}</div>
+          <div style="position:absolute;left:94mm;top:{{ pvCourseRuleTop }}mm;width:72mm;border-top:0.7px solid #C89B2D"></div>
+          <div style="position:absolute;left:64mm;top:{{ pvAwardTop }}mm;width:132mm;text-align:center;color:#2C374A;font-size:10pt">Awarded at the Academy in {{ setCity }} on {{ pvAward }}</div>
+          <div style="position:absolute;left:64mm;top:{{ pvIssuedTop }}mm;width:132mm;text-align:center;color:#5A6474;font-size:9.5pt">Issued on {{ pvIssue }}</div>
+          <!-- signatures -->
+          <sc-for list="{{ pvSigs }}" as="sg" hint-placeholder-count="0">
+            <div style="position:absolute;left:{{ sg.left }}mm;top:177.5mm;width:52mm;text-align:center">
+              <sc-if value="{{ sg.hasImage }}" hint-placeholder-val="{{ false }}"><div style="width:36mm;height:17mm;margin:0 auto 1mm;background-image:url({{ sg.image }});background-size:contain;background-repeat:no-repeat;background-position:center bottom"></div></sc-if>
+              <sc-if value="{{ sg.noImage }}" hint-placeholder-val="{{ true }}"><div style="height:17mm"></div></sc-if>
+              <div style="border-top:0.4px solid #2C374A;margin:0 0 1.5mm"></div>
+              <div style="color:#173A5E;font-family:'Newsreader',serif;font-size:10.5pt">{{ sg.name }}</div>
+              <div style="color:#5A6474;font-size:7pt;letter-spacing:0.1em;margin-top:0.5mm">{{ sg.titleUpper }}</div>
+            </div>
+          </sc-for>
+          <div style="position:absolute;left:129mm;top:193mm;width:2mm;height:2.6mm;background:#C89B2D;clip-path:polygon(50% 0, 100% 50%, 50% 100%, 0 50%)"></div>
+          <!-- accreditation & recognition (heading + logos, centred on the signature axis) -->
+          <div style="position:absolute;left:65mm;top:212.6mm;width:130mm;text-align:center;color:#173A5E;font-size:7.2pt;letter-spacing:0.12em;font-weight:600">ACCREDITATION AND RECOGNITION</div>
+          <div style="position:absolute;left:83mm;top:214mm;width:6mm;border-top:0.6px solid #C89B2D"></div>
+          <div style="position:absolute;left:171mm;top:214mm;width:6mm;border-top:0.6px solid #C89B2D"></div>
+          <div style="position:absolute;left:65mm;top:218.5mm;width:130mm;height:17mm;display:flex;align-items:center;justify-content:center;gap:12mm">
+            <img src="assets/bqa-logo.png" alt="Botswana Qualifications Authority" style="height:17mm;display:block">
+            <img src="assets/hrdc-logo.png" alt="Human Resource Development Council of Botswana" style="height:11.5mm;display:block">
+          </div>
+          <!-- verification row -->
+          <div style="position:absolute;left:26mm;top:247.5mm;width:158mm;border-top:0.5px solid #C89B2D"></div>
+          <div style="position:absolute;left:26mm;top:250.4mm;color:#173A5E;font-size:10pt;font-weight:600"><span style="color:#A8801F">Ref No.: </span>{{ pvRef }}</div>
+          <div style="position:absolute;left:26mm;top:256.3mm;color:#5A6474;font-size:8.5pt">Issued: {{ pvIssue }}</div>
+          <sc-if value="{{ pvHasQr }}" hint-placeholder-val="{{ false }}">
+            <div style="position:absolute;left:168mm;top:249mm;width:14mm;height:14mm;background-image:url({{ pvQr }});background-size:contain;background-repeat:no-repeat;background-position:center"></div>
+            <div style="position:absolute;left:164mm;top:263.3mm;width:22mm;text-align:center;color:#5A6474;font-size:6.5pt">Scan to verify</div>
+          </sc-if>
+          <!-- footer band (band, rule, mark and divider are baked art) -->
+          <div style="position:absolute;left:45.5mm;top:271.8mm;color:#FFFFFF;font-size:9.5pt;font-weight:700;letter-spacing:0.14em">{{ setNameUpper }}</div>
+          <div style="position:absolute;left:45.5mm;top:277.7mm;color:#FFFFFF;font-size:8.5pt;font-weight:700;letter-spacing:0.04em;word-spacing:0.2em">Study. <span style="color:#D4AF37">Learn.</span> Earn.</div>
+          <div style="position:absolute;left:45.5mm;top:283.4mm;height:5.2mm;border:0.7px solid #D4AF37;display:flex;align-items:center;padding:0 2.6mm;color:#FFFFFF;font-size:6.8pt;font-weight:600;white-space:nowrap;box-sizing:border-box">BQA ETP No.: {{ setBqa }}<span style="color:#D4AF37">&nbsp;&nbsp;|&nbsp;&nbsp;</span>TVET No.: {{ setTvet }}<span style="color:#D4AF37">&nbsp;&nbsp;|&nbsp;&nbsp;</span><span style="color:#D4AF37">{{ setHrdc }}</span></div>
+          <div style="position:absolute;left:124mm;top:271.6mm;width:70mm;text-align:right;color:#AEB8C7;font-size:7pt;line-height:1.5">{{ setAddr1 }}<br>{{ setAddr2 }}<br>{{ setAddr3 }}</div>
+          <div style="position:absolute;left:124mm;top:284mm;width:70mm;text-align:right;color:#FFFFFF;font-size:7.5pt;font-weight:600;line-height:1.5">{{ setPhone }}<br>{{ setEmail }}<br><span style="color:#D4AF37">{{ setWebsite }}</span></div>
+          <!-- draft watermark -->
+          <sc-if value="{{ pvDraft }}" hint-placeholder-val="{{ true }}">
+            <div style="position:absolute;left:40mm;top:30mm;width:170mm;height:230mm;display:flex;align-items:center;justify-content:center;pointer-events:none">
+              <div style="transform:rotate(-32deg);font-size:84pt;font-weight:800;color:rgba(90,100,116,0.10);letter-spacing:0.1em">DRAFT</div>
+            </div>
+          </sc-if>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ======================= REGISTER ======================= -->
+  <sc-if value="{{ isRegister }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:18px">
+      <h1 style="font-family:'Newsreader',serif;font-size:30px;margin:0;color:#16233B;font-weight:500">Certificate register</h1>
+      <button onClick="{{ exportCsv }}" style="background:#FFFFFF;border:1px solid #DAD6CC;border-radius:5px;padding:9px 16px;font-size:13px;color:#16233B;cursor:pointer" style-hover="border-color:#C89B2D">Export register to CSV</button>
+    </div>
+    <div style="background:#FFFFFF;border:1px solid #EFEDE7;border-radius:8px;padding:18px 20px;margin-bottom:14px;display:flex;gap:12px;flex-wrap:wrap;align-items:center">
+      <input type="search" value="{{ regQuery }}" onChange="{{ onRegQuery }}" placeholder="Search reference, learner name, Registration ID or ID number…" style="flex:1;min-width:280px;border:1px solid #DAD6CC;border-radius:5px;padding:9px 12px;font-size:13.5px">
+      <select value="{{ regCourse }}" onChange="{{ onRegCourse }}" style="border:1px solid #DAD6CC;border-radius:5px;padding:9px 10px;font-size:13px;background:#FFFFFF">
+        <option value="">All courses</option><option value="LTI">LTI</option><option value="STI">STI</option><option value="HCBA">HCBA</option><option value="WMT">WMT</option>
+      </select>
+      <select value="{{ regStatus }}" onChange="{{ onRegStatus }}" style="border:1px solid #DAD6CC;border-radius:5px;padding:9px 10px;font-size:13px;background:#FFFFFF">
+        <option value="">All statuses</option><option value="Issued">Issued</option><option value="Superseded">Superseded</option><option value="Revoked">Revoked</option><option value="Generation Failed">Generation Failed</option><option value="reprinted">Reprinted</option><option value="corrected">Corrected</option>
+      </select>
+      <input value="{{ regIntake }}" onChange="{{ onRegIntake }}" placeholder="Intake e.g. 2026MAR" style="width:130px;border:1px solid #DAD6CC;border-radius:5px;padding:9px 10px;font-size:13px">
+    </div>
+    <div style="background:#FFFFFF;border:1px solid #EFEDE7;border-radius:8px;padding:8px 20px 20px">
+      <table style="width:100%;border-collapse:collapse;font-size:12.5px">
+        <thead><tr>
+          <th style="text-align:left;padding:10px 8px;border-bottom:2px solid #16233B;font-size:10.5px;letter-spacing:0.1em;color:#5A6474">REFERENCE</th>
+          <th style="text-align:left;padding:10px 8px;border-bottom:2px solid #16233B;font-size:10.5px;letter-spacing:0.1em;color:#5A6474">LEARNER</th>
+          <th style="text-align:left;padding:10px 8px;border-bottom:2px solid #16233B;font-size:10.5px;letter-spacing:0.1em;color:#5A6474">ID</th>
+          <th style="text-align:left;padding:10px 8px;border-bottom:2px solid #16233B;font-size:10.5px;letter-spacing:0.1em;color:#5A6474">COURSE / INTAKE</th>
+          <th style="text-align:left;padding:10px 8px;border-bottom:2px solid #16233B;font-size:10.5px;letter-spacing:0.1em;color:#5A6474">AWARDED / ISSUED</th>
+          <th style="text-align:left;padding:10px 8px;border-bottom:2px solid #16233B;font-size:10.5px;letter-spacing:0.1em;color:#5A6474">STATUS</th>
+          <th style="text-align:right;padding:10px 8px;border-bottom:2px solid #16233B;font-size:10.5px;letter-spacing:0.1em;color:#5A6474">ACTIONS</th>
+        </tr></thead>
+        <tbody>
+          <sc-for list="{{ registerRows }}" as="c" hint-placeholder-count="6">
+            <tr>
+              <td style="padding:8px;border-bottom:1px solid #F6F4EF;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#16233B;white-space:nowrap">{{ c.reference }}</td>
+              <td style="padding:8px;border-bottom:1px solid #F6F4EF"><div style="font-weight:600;color:#16233B">{{ c.name }}</div><div style="color:#5A6474;font-size:11px">{{ c.reg }}</div></td>
+              <td style="padding:8px;border-bottom:1px solid #F6F4EF;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#2C374A">{{ c.idMasked }}</td>
+              <td style="padding:8px;border-bottom:1px solid #F6F4EF;color:#2C374A">{{ c.courseIntake }}</td>
+              <td style="padding:8px;border-bottom:1px solid #F6F4EF;color:#2C374A;font-size:11.5px">{{ c.dates }}</td>
+              <td style="padding:8px;border-bottom:1px solid #F6F4EF"><span style="font-size:10.5px;font-weight:700;padding:2px 9px;border-radius:9px;background:{{ c.stBg }};color:{{ c.stFg }}">{{ c.status }}</span><div style="color:#5A6474;font-size:10.5px;margin-top:2px">{{ c.statusSub }}</div></td>
+              <td style="padding:8px;border-bottom:1px solid #F6F4EF;text-align:right;white-space:nowrap">
+                <button data-id="{{ c.id }}" onClick="{{ openRecord }}" style="background:none;border:1px solid #DAD6CC;border-radius:4px;padding:4px 10px;font-size:11.5px;color:#16233B;cursor:pointer" style-hover="border-color:#C89B2D">Open</button>
+                <button data-id="{{ c.id }}" onClick="{{ reprintCert }}" style="background:none;border:1px solid #DAD6CC;border-radius:4px;padding:4px 10px;font-size:11.5px;color:#16233B;cursor:pointer;margin-left:5px" style-hover="border-color:#C89B2D">Reprint</button>
+              </td>
+            </tr>
+          </sc-for>
+        </tbody>
+      </table>
+      <sc-if value="{{ registerEmpty }}" hint-placeholder-val="{{ false }}">
+        <div style="text-align:center;color:#5A6474;font-size:13.5px;padding:36px 0">No certificates match. Issued certificates appear here and can be reprinted without re-uploading a spreadsheet.</div>
+      </sc-if>
+    </div>
+  </sc-if>
+
+  <!-- ======================= RECORD DETAIL ======================= -->
+  <sc-if value="{{ isRecord }}" hint-placeholder-val="{{ false }}">
+    <button onClick="{{ backToRegister }}" style="background:#FFFFFF;border:1px solid #DAD6CC;border-radius:5px;padding:8px 14px;font-size:13px;cursor:pointer;color:#16233B;margin-bottom:16px">← Register</button>
+    <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:14px">
+      <div style="background:#FFFFFF;border:1px solid #EFEDE7;border-radius:8px;padding:26px">
+        <div style="display:flex;justify-content:space-between;align-items:start;gap:14px">
+          <div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#A8801F;margin-bottom:6px">{{ recRef }}</div>
+            <div style="font-family:'Newsreader',serif;font-size:26px;color:#16233B">{{ recName }}</div>
+            <div style="font-size:13px;color:#5A6474;margin-top:4px">{{ recCourse }}</div>
+          </div>
+          <span style="font-size:11px;font-weight:700;padding:4px 12px;border-radius:11px;background:{{ recStBg }};color:{{ recStFg }}">{{ recStatus }}</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:2px 20px;margin-top:20px;font-size:13px">
+          <sc-for list="{{ recFields }}" as="f" hint-placeholder-count="8">
+            <div style="display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px solid #F6F4EF">
+              <span style="color:#5A6474">{{ f.k }}</span><span style="color:#16233B;font-weight:600;text-align:right">{{ f.v }}</span>
+            </div>
+          </sc-for>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:22px;flex-wrap:wrap">
+          <button data-id="{{ recId }}" onClick="{{ reprintCert }}" style="background:#0A1628;color:#FFFFFF;border:none;border-radius:5px;padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer" style-hover="background:#1E3150">Reprint PDF</button>
+          <sc-if value="{{ recCanAdmin }}" hint-placeholder-val="{{ false }}">
+            <button data-id="{{ recId }}" onClick="{{ openCorrect }}" style="background:#FFFFFF;border:1px solid #DAD6CC;border-radius:5px;padding:10px 16px;font-size:13px;cursor:pointer;color:#16233B" style-hover="border-color:#C89B2D">Regenerate corrected version</button>
+            <sc-if value="{{ recCanRevoke }}" hint-placeholder-val="{{ false }}">
+              <button data-id="{{ recId }}" onClick="{{ openRevoke }}" style="background:#FFFFFF;border:1px solid #DAD6CC;border-radius:5px;padding:10px 16px;font-size:13px;cursor:pointer;color:#B0402F" style-hover="border-color:#B0402F">Revoke</button>
+            </sc-if>
+          </sc-if>
+        </div>
+      </div>
+      <div style="background:#FFFFFF;border:1px solid #EFEDE7;border-radius:8px;padding:22px">
+        <div style="font-size:11px;letter-spacing:0.14em;color:#5A6474;font-weight:600;margin-bottom:10px">AUDIT TRAIL</div>
+        <div style="display:flex;flex-direction:column">
+          <sc-for list="{{ recEvents }}" as="e" hint-placeholder-count="4">
+            <div style="display:flex;gap:10px;padding:9px 0;border-bottom:1px solid #F6F4EF;font-size:12.5px">
+              <span style="width:7px;height:7px;border-radius:50%;background:{{ e.dot }};flex:none;margin-top:5px"></span>
+              <div style="flex:1">
+                <div><span style="font-weight:700;color:#16233B">{{ e.type }}</span> <span style="color:#5A6474">· {{ e.by }}</span></div>
+                <div style="color:#5A6474;font-size:11.5px">{{ e.when }}</div>
+                <sc-if value="{{ e.reason }}" hint-placeholder-val="{{ false }}"><div style="color:#2C374A;font-size:11.5px;margin-top:2px">“{{ e.reason }}”</div></sc-if>
+                <sc-if value="{{ e.changes }}" hint-placeholder-val="{{ false }}"><div style="color:#8A5D12;font-size:11px;margin-top:2px;font-family:'IBM Plex Mono',monospace">{{ e.changes }}</div></sc-if>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ======================= SETTINGS ======================= -->
+  <sc-if value="{{ isSettings }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:18px">
+      <h1 style="font-family:'Newsreader',serif;font-size:30px;margin:0;color:#16233B;font-weight:500">Settings</h1>
+      <button onClick="{{ saveSettings }}" disabled="{{ settingsLocked }}" style="background:#0A1628;color:#FFFFFF;border:none;border-radius:5px;padding:10px 22px;font-size:13px;font-weight:600;cursor:pointer;opacity:{{ settingsSaveOpacity }}" style-hover="background:#1E3150">Save settings</button>
+    </div>
+    <sc-if value="{{ settingsLocked }}" hint-placeholder-val="{{ false }}"><div style="background:#FBF1DF;color:#8A5D12;border-radius:6px;padding:10px 16px;font-size:13px;margin-bottom:14px">Only Administrators may change settings. You have read-only access.</div></sc-if>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start">
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div style="background:#FFFFFF;border:1px solid #EFEDE7;border-radius:8px;padding:22px">
+          <div style="font-size:11px;letter-spacing:0.14em;color:#5A6474;font-weight:600;margin-bottom:14px">INSTITUTION RECORD (CENTRAL)</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <sc-for list="{{ instFields }}" as="f" hint-placeholder-count="6">
+              <label style="display:flex;flex-direction:column;gap:4px;grid-column:span {{ f.span }}">
+                <span style="font-size:10.5px;letter-spacing:0.08em;color:#5A6474;font-weight:600">{{ f.label }}</span>
+                <input value="{{ f.value }}" data-key="{{ f.key }}" onChange="{{ onSetField }}" disabled="{{ settingsLocked }}" style="border:1px solid #DAD6CC;border-radius:4px;padding:8px 10px;font-size:13px">
+              </label>
+            </sc-for>
+          </div>
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:#16233B;margin-top:14px">
+            <input type="checkbox" checked="{{ setQrEnabled }}" onChange="{{ onQrToggle }}" disabled="{{ settingsLocked }}"> Print a verification QR code on certificates
+          </label>
+        </div>
+        <div style="background:#FFFFFF;border:1px solid #EFEDE7;border-radius:8px;padding:22px">
+          <div style="font-size:11px;letter-spacing:0.14em;color:#5A6474;font-weight:600;margin-bottom:6px">PAYMENT STATUS RULES</div>
+          <div style="font-size:12px;color:#5A6474;margin-bottom:12px">Comma-separated lists. “Review” statuses (e.g. Updated) block automatic issue until an administrator confirms or overrides with a reason.</div>
+          <sc-for list="{{ payRuleFields }}" as="f" hint-placeholder-count="3">
+            <label style="display:flex;flex-direction:column;gap:4px;margin-bottom:10px">
+              <span style="font-size:10.5px;letter-spacing:0.08em;color:{{ f.color }};font-weight:700">{{ f.label }}</span>
+              <input value="{{ f.value }}" data-key="{{ f.key }}" onChange="{{ onPayRule }}" disabled="{{ settingsLocked }}" style="border:1px solid #DAD6CC;border-radius:4px;padding:8px 10px;font-size:13px">
+            </label>
+          </sc-for>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div style="background:#FFFFFF;border:1px solid #EFEDE7;border-radius:8px;padding:22px">
+          <div style="font-size:11px;letter-spacing:0.14em;color:#5A6474;font-weight:600;margin-bottom:6px">CERTIFICATE ASSETS</div>
+          <div style="font-size:12.5px;color:#5A6474;line-height:1.7">Certificates carry the official iAB mark, the supplied BQA and HRDC logos, and the approved CEO (S. Murashiki) and Quality Assurance signatures (<span style="font-family:'IBM Plex Mono',monospace">assets/</span>). Only Administrators may replace these central assets; changes are recorded in the audit trail.</div>
+        </div>
+        <div style="background:#FFFFFF;border:1px solid #EFEDE7;border-radius:8px;padding:22px">
+          <div style="font-size:11px;letter-spacing:0.14em;color:#5A6474;font-weight:600;margin-bottom:6px">DATABASE CONNECTION</div>
+          <div style="font-size:12px;color:#5A6474;margin-bottom:12px;line-height:1.6">Currently: <strong style="color:#16233B">{{ modeLabel }}</strong>. Connect the iAB Supabase project (URL + anon public key only — never a service-role key) to share the register across staff and devices with row-level security. Setup: see <span style="font-family:'IBM Plex Mono',monospace">README.md</span> and <span style="font-family:'IBM Plex Mono',monospace">database/</span>.</div>
+          <label style="display:flex;flex-direction:column;gap:4px;margin-bottom:10px">
+            <span style="font-size:10.5px;letter-spacing:0.08em;color:#5A6474;font-weight:600">SUPABASE PROJECT URL</span>
+            <input value="{{ setSupaUrl }}" data-key="supabaseUrl" onChange="{{ onSetField }}" disabled="{{ settingsLocked }}" placeholder="https://xxxx.supabase.co" style="border:1px solid #DAD6CC;border-radius:4px;padding:8px 10px;font-size:13px;font-family:'IBM Plex Mono',monospace">
+          </label>
+          <label style="display:flex;flex-direction:column;gap:4px">
+            <span style="font-size:10.5px;letter-spacing:0.08em;color:#5A6474;font-weight:600">SUPABASE ANON PUBLIC KEY</span>
+            <input value="{{ setSupaKey }}" data-key="supabaseAnonKey" onChange="{{ onSetField }}" disabled="{{ settingsLocked }}" placeholder="eyJ…" style="border:1px solid #DAD6CC;border-radius:4px;padding:8px 10px;font-size:13px;font-family:'IBM Plex Mono',monospace">
+          </label>
+        </div>
+        <sc-if value="{{ recCanAdminSettings }}" hint-placeholder-val="{{ false }}">
+          <div style="background:#FFFFFF;border:1px solid #EFEDE7;border-radius:8px;padding:22px">
+            <div style="font-size:11px;letter-spacing:0.14em;color:#5A6474;font-weight:600;margin-bottom:10px">LOCAL DEMO DATA</div>
+            <button onClick="{{ openResetData }}" style="background:#FFFFFF;border:1px solid #DAD6CC;border-radius:5px;padding:9px 16px;font-size:13px;color:#B0402F;cursor:pointer" style-hover="border-color:#B0402F">Clear local demo registry…</button>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+  </sc-if>
+
+  </div>
+</sc-if>
+
+<!-- ======================= MODAL ======================= -->
+<sc-if value="{{ hasModal }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;inset:0;background:rgba(10,22,40,0.55);display:flex;align-items:center;justify-content:center;z-index:60;padding:24px">
+    <div style="background:#FFFFFF;border-radius:10px;box-shadow:0 24px 70px rgba(4,10,20,0.5);width:480px;max-width:94vw;padding:28px">
+      <div style="font-family:'Newsreader',serif;font-size:21px;color:#16233B;margin-bottom:8px">{{ modalTitle }}</div>
+      <div style="font-size:13.5px;color:#2C374A;line-height:1.6;margin-bottom:16px;white-space:pre-line">{{ modalBody }}</div>
+      <sc-for list="{{ modalFields }}" as="f" hint-placeholder-count="0">
+        <label style="display:flex;flex-direction:column;gap:5px;margin-bottom:12px">
+          <span style="font-size:10.5px;letter-spacing:0.08em;color:#5A6474;font-weight:600">{{ f.label }}</span>
+          <input value="{{ f.value }}" data-key="{{ f.key }}" onChange="{{ onModalField }}" style="border:1px solid #DAD6CC;border-radius:4px;padding:9px 11px;font-size:13px">
+        </label>
+      </sc-for>
+      <sc-if value="{{ modalNeedsReason }}" hint-placeholder-val="{{ false }}">
+        <label style="display:flex;flex-direction:column;gap:5px;margin-bottom:12px">
+          <span style="font-size:10.5px;letter-spacing:0.08em;color:#5A6474;font-weight:600">REASON (REQUIRED — RECORDED IN THE AUDIT TRAIL)</span>
+          <textarea value="{{ modalReason }}" onChange="{{ onModalReason }}" rows="3" style="border:1px solid #DAD6CC;border-radius:4px;padding:9px 11px;font-size:13px;resize:vertical"></textarea>
+        </label>
+      </sc-if>
+      <sc-if value="{{ modalErr }}" hint-placeholder-val="{{ false }}"><div style="background:#F7E7E3;color:#B0402F;border-radius:5px;padding:9px 12px;font-size:12.5px;margin-bottom:12px">{{ modalErr }}</div></sc-if>
+      <div style="display:flex;gap:10px;justify-content:flex-end">
+        <button onClick="{{ modalCancel }}" style="background:#FFFFFF;border:1px solid #DAD6CC;border-radius:5px;padding:10px 18px;font-size:13px;cursor:pointer;color:#16233B">Cancel</button>
+        <button onClick="{{ modalConfirm }}" style="background:{{ modalConfirmBg }};color:#FFFFFF;border:none;border-radius:5px;padding:10px 20px;font-size:13px;font-weight:600;cursor:pointer">{{ modalConfirmLabel }}</button>
+      </div>
+    </div>
+  </div>
+</sc-if>
+
+<!-- ======================= SUPABASE SETUP MODAL ======================= -->
+<sc-if value="{{ setupOpen }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;inset:0;background:rgba(10,22,40,0.55);display:flex;align-items:center;justify-content:center;z-index:80;padding:24px">
+    <div style="background:#FFFFFF;border-radius:10px;box-shadow:0 24px 70px rgba(4,10,20,0.5);width:500px;max-width:94vw;padding:28px">
+      <div style="font-family:'Newsreader',serif;font-size:21px;color:#16233B;margin-bottom:8px">Configure Supabase connection</div>
+      <div style="background:#FBF1DF;color:#8A5D12;border-radius:5px;padding:10px 12px;font-size:12.5px;line-height:1.55;margin-bottom:16px">Enter only the Supabase Project URL and publishable key. Never enter a service-role key, secret key or database password.</div>
+      <label style="display:flex;flex-direction:column;gap:5px;margin-bottom:12px">
+        <span style="font-size:10.5px;letter-spacing:0.08em;color:#5A6474;font-weight:600">SUPABASE PROJECT URL</span>
+        <input value="{{ setupUrl }}" onChange="{{ onSetupUrl }}" placeholder="https://xxxxxxxxxxxxxxxx.supabase.co" style="border:1px solid #DAD6CC;border-radius:4px;padding:9px 11px;font-size:13px;font-family:'IBM Plex Mono',monospace">
+      </label>
+      <label style="display:flex;flex-direction:column;gap:5px;margin-bottom:12px">
+        <span style="font-size:10.5px;letter-spacing:0.08em;color:#5A6474;font-weight:600">SUPABASE PUBLISHABLE KEY</span>
+        <input value="{{ setupKey }}" onChange="{{ onSetupKey }}" placeholder="sb_publishable_xxxxxxxxxxxxxxxxx" style="border:1px solid #DAD6CC;border-radius:4px;padding:9px 11px;font-size:13px;font-family:'IBM Plex Mono',monospace">
+      </label>
+      <sc-if value="{{ setupMsg }}" hint-placeholder-val="{{ false }}">
+        <div style="background:{{ setupMsgBg }};color:{{ setupMsgFg }};border-radius:5px;padding:9px 12px;font-size:12.5px;margin-bottom:12px;line-height:1.5">{{ setupMsg }}</div>
+      </sc-if>
+      <div style="display:flex;gap:10px;justify-content:flex-end">
+        <button onClick="{{ setupCancel }}" style="background:#FFFFFF;border:1px solid #DAD6CC;border-radius:5px;padding:10px 16px;font-size:13px;cursor:pointer;color:#16233B">Cancel</button>
+        <button onClick="{{ setupTest }}" style="background:#FFFFFF;border:1px solid #C89B2D;border-radius:5px;padding:10px 16px;font-size:13px;cursor:pointer;color:#16233B;font-weight:600" style-hover="background:#FBF7EC">{{ setupTestLabel }}</button>
+        <button onClick="{{ setupSave }}" disabled="{{ setupSaveDisabled }}" style="background:#0A1628;color:#FFFFFF;border:none;border-radius:5px;padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer;opacity:{{ setupSaveOpacity }}">Save connection</button>
+      </div>
+    </div>
+  </div>
+</sc-if>
+
+<!-- ======================= BULK PROGRESS ======================= -->
+<sc-if value="{{ bulkRunning }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;inset:0;background:rgba(10,22,40,0.55);display:flex;align-items:center;justify-content:center;z-index:70;padding:24px">
+    <div style="background:#FFFFFF;border-radius:10px;width:460px;max-width:94vw;padding:28px">
+      <div style="font-family:'Newsreader',serif;font-size:21px;color:#16233B;margin-bottom:4px">Generating certificates</div>
+      <div style="font-size:13px;color:#5A6474;margin-bottom:16px">{{ bulkCurrentText }}</div>
+      <div style="height:8px;background:#EFEDE7;border-radius:4px;margin-bottom:10px"><div style="height:8px;background:#C89B2D;border-radius:4px;width:{{ bulkPct }}%;transition:width 0.2s"></div></div>
+      <div style="display:flex;justify-content:space-between;font-size:12.5px;color:#2C374A;margin-bottom:16px">
+        <span>{{ bulkSummary }}</span><span style="font-weight:700">{{ bulkPct }}%</span>
+      </div>
+      <div style="display:flex;justify-content:flex-end"><button onClick="{{ bulkCancel }}" style="background:#FFFFFF;border:1px solid #DAD6CC;border-radius:5px;padding:9px 16px;font-size:13px;cursor:pointer;color:#B0402F">Cancel after current</button></div>
+    </div>
+  </div>
+</sc-if>
+
+<!-- ======================= TOAST ======================= -->
+<sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;bottom:26px;left:50%;transform:translateX(-50%);background:#16233B;color:#FFFFFF;border-left:3px solid #C89B2D;border-radius:6px;padding:12px 20px;font-size:13.5px;box-shadow:0 10px 30px rgba(4,10,20,0.4);z-index:90;max-width:80vw">{{ toast }}</div>
+</sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;showDemoHint&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Login&quot;}}">
+class Component extends DCLogic {
+  state = {
+    view: 'login', session: null, err: '', busyLogin: false,
+    email: '', pw: '',
+    impStep: 1, impFile: null, impSheets: [], impSheet: '', impHeaders: [], impRows: [],
+    mapping: {}, showOnlyEligible: false, impIssueDate: new Date().toISOString().slice(0, 10),
+    selected: {}, previewIdx: 0, zoom: 0.75, previewList: [],
+    regQuery: '', regCourse: '', regStatus: '', regIntake: '',
+    recordId: null, modal: null, bulk: null, toast: '', dbTick: 0,
+    setupOpen: false, setupUrl: '', setupKey: '', setupMsg: '', setupMsgKind: '', setupTested: false, setupTesting: false
+  };
+  E() { return window.IABEngine; }
+  componentDidMount() {
+    this._db = this.E().LocalDB.load();
+    if (!this._db.settings) this._db.settings = Object.assign({}, this.E().INSTITUTION_DEFAULTS, { paymentRules: JSON.parse(JSON.stringify(this.E().PAYMENT_STATUS_RULES)) });
+    this._db.settings.templateVersion = this.E().INSTITUTION_DEFAULTS.templateVersion; // current approved template
+    this._db.settings.signatories = JSON.parse(JSON.stringify(this.E().INSTITUTION_DEFAULTS.signatories)); // central signature assets
+    this._recs = []; this._valid = {}; this._pdfCache = {};
+    const s = sessionStorage.getItem('iab_cert_session');
+    if (s) { try { this.setState({ session: JSON.parse(s), view: 'dashboard' }); } catch (e) {} }
+    this._supa = null;
+    const st = this._db.settings;
+    if (st.supabaseUrl && st.supabaseAnonKey) this._supa = this.E().makeSupabase(st.supabaseUrl, st.supabaseAnonKey);
+    this.forceUpdate();
+  }
+  saveDB() { this.E().LocalDB.save(this._db); this.setState(s => ({ dbTick: s.dbTick + 1 })); }
+  settings() { return (this._db && this._db.settings) || this.E().INSTITUTION_DEFAULTS; }
+  isAdmin() { return this.state.session && this.state.session.role === 'Administrator'; }
+  canIssue() { const r = this.state.session && this.state.session.role; return r === 'Administrator' || r === 'Certificate Issuer'; }
+  showToast(msg) { this.setState({ toast: msg }); clearTimeout(this._tt); this._tt = setTimeout(() => this.setState({ toast: '' }), 4200); }
+  audit(certId, type, reason, prev, next, meta) {
+    this.E().LocalDB.addEvent(this._db, { certificate_id: certId, event_type: type, performed_by: (this.state.session || {}).email || 'system', reason: reason || null, previous_values: prev || null, new_values: next || null, metadata: meta || null });
+  }
+
+  // ---------- auth ----------
+  isProduction() { return !!(window.DEPLOYMENT_CONFIG && window.DEPLOYMENT_CONFIG.production); }
+  validateSetup(url, key) {
+    url = (url || '').trim(); key = (key || '').trim();
+    if (!/^https:\/\//.test(url)) return 'The project URL must begin with https://';
+    if (!/\.supabase\.co\/?$/.test(url)) return 'The project URL must end with .supabase.co';
+    if (!key) return 'The publishable key is required.';
+    if (/^sb_secret_/i.test(key)) return 'That is a SECRET key. Never enter a secret key here — use the publishable key.';
+    if (/service_role/i.test(key)) return 'That key contains a service_role claim. Never enter a service-role key here.';
+    if (/postgres(ql)?:\/\//i.test(key) || /postgres(ql)?:\/\//i.test(url)) return 'Database connection strings must never be entered here.';
+    if (/\s/.test(key)) return 'The key must not contain spaces.';
+    return null;
+  }
+  async testSetup(save) {
+    const url = this.state.setupUrl.trim().replace(/\/$/, ''), key = this.state.setupKey.trim();
+    const bad = this.validateSetup(url, key);
+    if (bad) { this.setState({ setupMsg: bad, setupMsgKind: 'err', setupTested: false }); return false; }
+    this.setState({ setupTesting: true, setupMsg: 'Testing connection…', setupMsgKind: 'info' });
+    try {
+      if (!window.supabase) throw new Error('Supabase client library not loaded — check your network.');
+      const client = window.supabase.createClient(url, key);
+      const { error } = await client.auth.getSession();
+      if (error) throw error;
+      // confirm the key is accepted by the project (auth settings endpoint responds 200 for valid keys)
+      const r = await fetch(url + '/auth/v1/settings', { headers: { apikey: key, Authorization: 'Bearer ' + key } });
+      if (r.status === 401 || r.status === 403) throw new Error('The project rejected this key (HTTP ' + r.status + '). Check the publishable key.');
+      if (!r.ok) throw new Error('The project responded with HTTP ' + r.status + '. Check the project URL.');
+      this.setState({ setupTesting: false, setupMsg: 'Connection successful.', setupMsgKind: 'ok', setupTested: true });
+      return true;
+    } catch (e) {
+      this.setState({ setupTesting: false, setupMsg: 'Connection failed: ' + (e.message || e), setupMsgKind: 'err', setupTested: false });
+      return false;
+    }
+  }
+  async saveSetup() {
+    if (!this.state.setupTested) { const ok = await this.testSetup(); if (!ok) return; }
+    const url = this.state.setupUrl.trim().replace(/\/$/, ''), key = this.state.setupKey.trim();
+    const st = this.settings();
+    st.supabaseUrl = url; st.supabaseAnonKey = key;
+    this._db.settings = st;
+    this._supa = this.E().makeSupabase(url, key);
+    this.saveDB();
+    this.setState({ setupOpen: false, setupMsg: '', setupTested: false });
+    this.showToast('Supabase connection saved. Sign in with your staff account.');
+  }
+  async doLogin() {
+    const { email, pw } = this.state;
+    this.setState({ busyLogin: true, err: '' });
+    try {
+      let sess = null;
+      if (this._supa) sess = await this._supa.signIn(email, pw);
+      else if (this.isProduction()) throw new Error('Production database and authentication have not yet been configured. Please contact the iAB system administrator.');
+      else sess = this.E().LocalDB.signIn(this._db, email, pw);
+      if (!sess) throw new Error('Invalid email or password.');
+      sessionStorage.setItem('iab_cert_session', JSON.stringify(sess));
+      this.setState({ session: sess, view: 'dashboard', err: '', busyLogin: false, pw: '' });
+    } catch (e) { this.setState({ err: e.message || 'Sign-in failed.', busyLogin: false }); }
+  }
+  doLogout() {
+    sessionStorage.removeItem('iab_cert_session');
+    if (this._supa) this._supa.signOut();
+    this.setState({ session: null, view: 'login', email: '', pw: '' });
+  }
+
+  // ---------- import ----------
+  async handleFile(file) {
+    try {
+      const buf = await file.arrayBuffer();
+      const wb = window.XLSX.read(buf, { type: 'array', cellDates: false });
+      this._wb = wb;
+      const sheets = wb.SheetNames.map(n => {
+        const ws = wb.Sheets[n]; const ref = ws['!ref'] || 'A1:A1';
+        const rows = window.XLSX.utils.decode_range(ref).e.r + 1;
+        return { name: n, info: rows + ' rows' };
+      });
+      const st = { impFile: { name: file.name, type: file.name.split('.').pop().toUpperCase() }, impSheets: sheets, err: '' };
+      if (sheets.length === 1) { this.setState(st); this.pickSheet(sheets[0].name); }
+      else this.setState(Object.assign(st, { impStep: 2 }));
+    } catch (e) { this.setState({ err: 'Could not read the file: ' + e.message }); }
+  }
+  pickSheet(name) {
+    const ws = this._wb.Sheets[name];
+    const aoa = window.XLSX.utils.sheet_to_json(ws, { header: 1, raw: true, defval: null });
+    const headers = (aoa[0] || []).map(h => h == null ? '' : String(h).trim());
+    const rows = aoa.slice(1);
+    const saved = this._db.mappings[headers.join('|')];
+    const auto = this.E().detectMapping(headers);
+    const mapping = {};
+    Object.keys(auto).forEach(k => { mapping[k] = saved && saved[k] !== undefined ? { col: saved[k], confidence: 'saved' } : auto[k]; });
+    this.setState({ impSheet: name, impHeaders: headers, impRows: rows, mapping, impStep: 3, err: '' });
+  }
+  runValidation() {
+    const E = this.E(); const { impRows, mapping } = this.state;
+    const recs = []; const sel = {};
+    impRows.forEach((row, i) => {
+      if (E.isBlankRow(row)) return;
+      const rec = E.rowToLearner(row, mapping, i);
+      rec.v = E.validateLearner(rec, { paymentRules: this.settings().paymentRules });
+      rec.existing = rec.course ? E.LocalDB.findActiveCert(this._db, rec.registration_id, rec.course.code, rec.intake_year, rec.intake_month_code) : null;
+      rec.override = null;
+      recs.push(rec);
+      if (rec.v.eligible && !rec.existing) sel[i] = true;
+    });
+    this._recs = recs;
+    // batch record
+    const stats = this.impStats(recs);
+    this._db.batches.unshift({ id: 'b' + Date.now(), original_filename: this.state.impFile.name, worksheet_name: this.state.impSheet, row_count: impRows.length, populated: recs.length, eligible_count: stats.eligible, blocked_count: stats.blockedTotal, already_issued: stats.issued, imported_by: this.state.session.email, imported_at: new Date().toISOString(), mapping_configuration: this.exportMapping() });
+    this._db.mappings[this.state.impHeaders.join('|')] = this.exportMapping();
+    this.saveDB();
+    this.setState({ impStep: 4, selected: sel });
+  }
+  exportMapping() { const m = {}; Object.keys(this.state.mapping).forEach(k => m[k] = this.state.mapping[k].col); return m; }
+  impStats(recs) {
+    let eligible = 0, issued = 0, pay = 0, acad = 0, valid = 0;
+    recs.forEach(r => {
+      if (r.existing) { issued++; return; }
+      if (r.v.eligible || r.override) { eligible++; return; }
+      if (r.v.blockKinds.payment) pay++;
+      if (!r.v.academic) acad++;
+      if (r.v.blockKinds.validation) valid++;
+    });
+    return { eligible, issued, pay, acad, valid, blockedTotal: recs.length - eligible - issued };
+  }
+
+  // ---------- certificate model + issue ----------
+  certModel(rec, reference) {
+    const E = this.E(); const st = this.settings();
+    const issueDate = new Date(this.state.impIssueDate + 'T00:00:00Z');
+    return {
+      full_name: rec.full_name, id_type: rec.id_type + ':', id_number: rec.id_number,
+      course_code: rec.course.code, course_name: rec.course.name,
+      intake_year: rec.intake_year, intake_month: rec.intake_month_code,
+      award_date: rec.exam_date, award_date_text: rec.exam_date ? E.fmtDate(rec.exam_date) : E.fmtDate(issueDate),
+      issue_date: issueDate, issue_date_text: E.fmtDate(issueDate),
+      reference: reference || '· · · · (assigned at issue)',
+      qr_url: st.qrEnabled && reference ? (st.verifyUrl + '?ref=' + encodeURIComponent(reference)) : (st.qrEnabled ? st.verifyUrl : null)
+    };
+  }
+  async issueRec(rec) {
+    const E = this.E(); const st = this.settings();
+    const dup = E.LocalDB.findActiveCert(this._db, rec.registration_id, rec.course.code, rec.intake_year, rec.intake_month_code);
+    if (dup) return { skipped: true, reason: 'Already issued: ' + dup.certificate_reference };
+    const issueDate = new Date(this.state.impIssueDate + 'T00:00:00Z');
+    let ref;
+    if (this._supa) {
+      const r = await this._supa.reserveReference(rec.course.code, rec.intake_year, rec.intake_month_code, issueDate);
+      ref = { reference: r.reference, sequence: r.sequence, parts: r };
+    } else {
+      ref = E.LocalDB.reserveReference(this._db, rec.course.code, rec.intake_year, rec.intake_month_code, issueDate);
+    }
+    const cert = this.certModel(rec, ref.reference);
+    const out = await E.renderCertificatePDF(cert, st, { draft: false });
+    const id = 'c' + Date.now() + Math.random().toString(36).slice(2, 6);
+    const record = {
+      id, certificate_reference: ref.reference, file_safe_reference: E.fileSafe(ref.reference),
+      base_reference: ref.reference, revision_number: 0, sequence_number: ref.sequence,
+      registration_id: rec.registration_id, full_name_at_issue: rec.full_name,
+      id_type_at_issue: rec.id_type, id_number_at_issue: rec.id_number,
+      course_code: rec.course.code, course_name_at_issue: rec.course.name,
+      intake_month: rec.intake_month_code, intake_year: rec.intake_year,
+      award_date: E.isoDate(rec.exam_date), issue_date: this.state.impIssueDate,
+      generated_at: new Date().toISOString(),
+      formative_mark: rec.formative_total, original_exam_mark: rec.exam_mark, resit_mark: rec.resit_mark,
+      effective_exam_mark: rec.effective_exam, overall_mark: rec.overall_mark,
+      payment_status: rec.payment_status, eligibility_override: !!rec.override,
+      override_reason: rec.override ? rec.override.reason : null,
+      status: out.preflightOk ? 'Issued' : 'Generation Failed',
+      template_version: st.templateVersion, generated_by: this.state.session.email,
+      pdf_hash: null, reprint_count: 0, last_reprinted_at: null, supersedes_certificate_id: null,
+      created_at: new Date().toISOString()
+    };
+    if (!out.preflightOk) {
+      this._db.certificates.unshift(record);
+      this.audit(id, 'Generation Failed', 'Preflight failed: ' + JSON.stringify(out.preflight));
+      this.saveDB();
+      const failed = Object.keys(out.preflight).filter(k => out.preflight[k] === false).join(', ');
+      return { failed: true, reason: 'Preflight failed (' + failed + ') — certificate NOT issued.' };
+    }
+    record.pdf_hash = await E.sha256Hex(out.bytes);
+    this._pdfCache[ref.reference] = out.bytes;
+    this._db.certificates.unshift(record);
+    if (rec.override) this.audit(id, 'Created', 'Payment-status override: ' + rec.override.reason, { payment_status: rec.payment_status }, null, { override_by: rec.override.by });
+    this.audit(id, 'Issued', null, null, { reference: ref.reference });
+    this.saveDB();
+    return { record, bytes: out.bytes, filename: E.certFilename(ref.reference, rec.full_name) };
+  }
+  async issueSingle(rec) {
+    if (!this.canIssue()) { this.showToast('Your role cannot issue certificates.'); return; }
+    if (!rec.exam_date) {
+      this.setState({ modal: { type: 'awardDate', rec, title: 'Award date missing', body: rec.full_name + ' has no award (exam/completion) date in the spreadsheet. The issue date will be printed as the award date.\nConfirm to proceed — this is recorded in the audit trail.', needsReason: false, confirmLabel: 'Confirm and issue' } });
+      return;
+    }
+    await this.reallyIssueSingle(rec);
+  }
+  async reallyIssueSingle(rec) {
+    this.showToast('Generating certificate…');
+    try {
+      const res = await this.issueRec(rec);
+      if (res.skipped) { this.showToast(res.reason); return; }
+      if (res.failed) { this.showToast(res.reason); return; }
+      this.E().downloadBlob(res.bytes, res.filename);
+      this.audit(res.record.id, 'Downloaded');
+      this.saveDB();
+      this.showToast('Issued ' + res.record.certificate_reference);
+    } catch (e) { this.showToast('Issue failed: ' + e.message); }
+  }
+  async runBulk() {
+    if (!this.canIssue()) { this.showToast('Your role cannot issue certificates.'); return; }
+    const idxs = Object.keys(this.state.selected).filter(k => this.state.selected[k]).map(Number);
+    const recs = this._recs.filter(r => idxs.includes(r.rowIndex));
+    if (!recs.length) return;
+    const missing = recs.filter(r => !r.exam_date);
+    if (missing.length && !this._bulkConfirmed) {
+      this.setState({ modal: { type: 'bulkAwardDate', title: 'Award dates missing', body: missing.length + ' selected learner(s) have no award date. For those, the issue date will print as the award date.\nConfirm to proceed with bulk generation.', confirmLabel: 'Proceed' } });
+      return;
+    }
+    this._bulkConfirmed = false;
+    this._cancelBulk = false;
+    const zip = new window.JSZip();
+    let done = 0, failed = 0, skipped = 0;
+    this.setState({ bulk: { total: recs.length, done: 0, failed: 0, skipped: 0, current: recs[0].full_name, running: true } });
+    for (const rec of recs) {
+      if (this._cancelBulk) break;
+      this.setState({ bulk: Object.assign({}, this.state.bulk, { current: rec.full_name, done, failed, skipped }) });
+      try {
+        const res = await this.issueRec(rec);
+        if (res.skipped) skipped++;
+        else if (res.failed) failed++;
+        else { zip.file(res.filename, res.bytes); done++; this.audit(res.record.id, 'Downloaded', 'Included in bulk ZIP'); }
+      } catch (e) { failed++; }
+      await new Promise(r => setTimeout(r, 30));
+    }
+    this.setState({ bulk: Object.assign({}, this.state.bulk, { done, failed, skipped, running: true, current: 'Packaging ZIP…' }) });
+    if (done > 0) {
+      const blob = await zip.generateAsync({ type: 'blob' });
+      this.E().downloadBlob(blob, 'iAB Certificates ' + this.state.impIssueDate + '.zip', 'application/zip');
+    }
+    this.saveDB();
+    this.setState({ bulk: null });
+    this.showToast('Bulk complete — ' + done + ' issued, ' + skipped + ' already issued, ' + failed + ' failed.');
+  }
+
+  // ---------- register actions ----------
+  findCert(id) { return this._db.certificates.find(c => c.id === id); }
+  certToModel(c) {
+    const E = this.E(); const st = this.settings();
+    return {
+      full_name: c.full_name_at_issue, id_type: c.id_type_at_issue + ':', id_number: c.id_number_at_issue,
+      course_code: c.course_code, course_name: c.course_name_at_issue,
+      award_date_text: c.award_date ? E.fmtDate(new Date(c.award_date + 'T00:00:00Z')) : E.fmtDate(new Date(c.issue_date + 'T00:00:00Z')),
+      issue_date_text: E.fmtDate(new Date(c.issue_date + 'T00:00:00Z')),
+      reference: c.certificate_reference,
+      qr_url: st.qrEnabled ? (st.verifyUrl + '?ref=' + encodeURIComponent(c.certificate_reference)) : null
+    };
+  }
+  async doReprint(id, reason) {
+    const c = this.findCert(id); if (!c) return;
+    const E = this.E();
+    this.showToast('Preparing reprint…');
+    try {
+      let bytes = this._pdfCache[c.certificate_reference];
+      if (!bytes) {
+        const out = await E.renderCertificatePDF(this.certToModel(c), this.settings(), { draft: false });
+        if (!out.preflightOk) { this.showToast('Preflight failed — reprint blocked.'); return; }
+        bytes = out.bytes; this._pdfCache[c.certificate_reference] = bytes;
+      }
+      c.reprint_count = (c.reprint_count || 0) + 1;
+      c.last_reprinted_at = new Date().toISOString();
+      this.audit(c.id, 'Reprinted', reason || null);
+      this.saveDB();
+      E.downloadBlob(bytes, E.certFilename(c.certificate_reference, c.full_name_at_issue));
+      this.showToast('Reprinted ' + c.certificate_reference + ' (reprint #' + c.reprint_count + ')');
+    } catch (e) { this.showToast('Reprint failed: ' + e.message); }
+  }
+  async doCorrect(id, fields, reason) {
+    const c = this.findCert(id); if (!c) return;
+    const E = this.E();
+    const rev = (c.revision_number || 0) + 1;
+    const base = c.base_reference || c.certificate_reference.replace(/-R\d+$/, '');
+    const newRef = base + '-R' + rev;
+    const prev = { full_name: c.full_name_at_issue, id_number: c.id_number_at_issue, issue_date: c.issue_date };
+    const next = { full_name: fields.full_name || c.full_name_at_issue, id_number: fields.id_number || c.id_number_at_issue, issue_date: fields.issue_date || c.issue_date };
+    const nc = Object.assign({}, c, {
+      id: 'c' + Date.now() + Math.random().toString(36).slice(2, 6),
+      certificate_reference: newRef, file_safe_reference: E.fileSafe(newRef), base_reference: base,
+      revision_number: rev, full_name_at_issue: next.full_name, id_number_at_issue: next.id_number,
+      issue_date: next.issue_date, generated_at: new Date().toISOString(),
+      generated_by: this.state.session.email, status: 'Issued', reprint_count: 0,
+      supersedes_certificate_id: c.id, created_at: new Date().toISOString()
+    });
+    const out = await E.renderCertificatePDF(this.certToModel(nc), this.settings(), { draft: false });
+    if (!out.preflightOk) { this.showToast('Preflight failed — correction not issued.'); return; }
+    nc.pdf_hash = await E.sha256Hex(out.bytes);
+    this._pdfCache[newRef] = out.bytes;
+    c.status = 'Superseded';
+    this._db.certificates.unshift(nc);
+    this.audit(c.id, 'Superseded', reason, prev, next);
+    this.audit(nc.id, 'Corrected', reason, prev, next);
+    this.audit(nc.id, 'Issued', null, null, { reference: newRef });
+    this.saveDB();
+    E.downloadBlob(out.bytes, E.certFilename(newRef, nc.full_name_at_issue));
+    this.setState({ recordId: nc.id });
+    this.showToast('Corrected version issued: ' + newRef);
+  }
+
+  // ---------- renderVals ----------
+  renderVals() {
+    const S = this.state, E = this.E();
+    if (!E || !this._db) return { isLogin: true, showDemoHint: false, loginLabel: 'Sign in' };
+    const st = this.settings();
+    const navBtn = (v) => 'background:' + (S.view === v || (v === 'import' && (S.view === 'preview')) || (v === 'register' && S.view === 'record') ? '#1E3150' : 'transparent') + ';color:' + (S.view === v ? '#FFFFFF' : '#AEB8C7') + ';border:none;border-radius:5px;padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer;letter-spacing:0.02em';
+    const certs = this._db.certificates || [];
+    const now = new Date();
+    const stColors = { 'Issued': ['#E7F1EC', '#1E7A4E'], 'Superseded': ['#EFEDE7', '#5A6474'], 'Revoked': ['#F7E7E3', '#B0402F'], 'Generation Failed': ['#FBF1DF', '#8A5D12'] };
+
+    // dashboard
+    const thisMonth = certs.filter(c => c.status !== 'Generation Failed' && c.created_at && c.created_at.slice(0, 7) === now.toISOString().slice(0, 7)).length;
+    const reprints = certs.reduce((a, c) => a + (c.reprint_count || 0), 0);
+    const corrected = certs.filter(c => c.revision_number > 0).length;
+    const revoked = certs.filter(c => c.status === 'Revoked').length;
+    const lastBatch = (this._db.batches || [])[0];
+    const awaiting = lastBatch ? Math.max(0, lastBatch.eligible_count - certs.filter(c => c.status === 'Issued').length >= 0 ? lastBatch.eligible_count : 0) : 0;
+    const blockedPay = lastBatch ? (lastBatch.blocked_count || 0) : 0;
+    const statCards = [
+      { label: 'ISSUED THIS MONTH', value: String(thisMonth), sub: E.fmtDate(new Date(Date.UTC(now.getFullYear(), now.getMonth(), 1))).split(' ').slice(1).join(' '), color: '#16233B' },
+      { label: 'TOTAL ON REGISTER', value: String(certs.filter(c => c.status === 'Issued').length), sub: corrected + ' corrected · ' + revoked + ' revoked', color: '#16233B' },
+      { label: 'REPRINTS', value: String(reprints), sub: 'reissued from the register', color: '#A8801F' },
+      { label: 'AWAITING / BLOCKED', value: lastBatch ? String(lastBatch.eligible_count) + ' / ' + String(blockedPay) : '—', sub: 'from the latest import', color: '#8A5D12' }
+    ];
+    const byCourse = {}; certs.forEach(c => { if (c.status === 'Issued') byCourse[c.course_code] = (byCourse[c.course_code] || 0) + 1; });
+    const maxC = Math.max(1, ...Object.values(byCourse));
+    const shortNames = { LTI: 'Long Term Insurance', STI: 'Short Term: Personal Lines', HCBA: 'Healthcare & HBA', WMT: 'Wealth Management' };
+    const courseBars = Object.keys(E.COURSES).map(k => ({ code: k, short: shortNames[k], count: String(byCourse[k] || 0), pct: Math.round(100 * (byCourse[k] || 0) / maxC) }));
+    const evDot = (t) => t === 'Issued' ? '#1E7A4E' : t === 'Revoked' ? '#B0402F' : t === 'Reprinted' ? '#C89B2D' : t === 'Corrected' || t === 'Superseded' ? '#8A5D12' : '#5A6474';
+    const certName = (id) => { const c = certs.find(x => x.id === id); return c ? c.full_name_at_issue + ' — ' + c.certificate_reference : ''; };
+    const recentEvents = (this._db.events || []).slice(0, 9).map(e => ({ type: e.event_type, text: certName(e.certificate_id) || (e.reason || ''), when: new Date(e.event_date).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }), dot: evDot(e.event_type) }));
+
+    // wizard
+    const stepLabels = ['Upload', 'Worksheet', 'Mapping', 'Validate & issue'];
+    const wizardSteps = stepLabels.map((l, i) => {
+      const n = i + 1, active = S.impStep === n, past = S.impStep > n;
+      return { n: String(n), label: l, arrow: i < 3, bg: active ? '#0A1628' : past ? '#FBF7EC' : '#FFFFFF', fg: active ? '#FFFFFF' : past ? '#A8801F' : '#5A6474', border: active ? '#0A1628' : past ? '#E9D6A0' : '#DAD6CC', labelColor: active ? '#16233B' : '#5A6474' };
+    });
+    const impFileLine = S.impFile ? S.impFile.name + ' (' + S.impFile.type + ')' + (S.impSheet ? ' · worksheet “' + S.impSheet + '”' : '') + (S.impRows.length ? ' · ' + S.impRows.length + ' data rows' : '') : '';
+
+    // mapping
+    const headerOpts = S.impHeaders.map((h, i) => ({ i, label: E.colLetter(i) + ' — ' + (h || '(blank)') })).filter(h => S.impHeaders[h.i] !== '');
+    const sample = (col) => { for (const row of S.impRows.slice(0, 6)) { if (row && row[col] != null && String(row[col]).trim()) return String(row[col]); } return ''; };
+    const badgeStyles = { exact: ['#E7F1EC', '#1E7A4E', 'AUTO'], saved: ['#E6EEFB', '#2E6BD6', 'SAVED'], partial: ['#FBF1DF', '#8A5D12', 'CHECK'], manual: ['#E6EEFB', '#2E6BD6', 'MANUAL'], none: ['#EFEDE7', '#5A6474', 'NOT MAPPED'] };
+    const mappingRows = E.FIELDS.map(f => {
+      const m = S.mapping[f.key] || { col: -1, confidence: 'none' };
+      const bs = badgeStyles[m.col < 0 ? 'none' : m.confidence] || badgeStyles.manual;
+      return { key: f.key, label: f.label, required: f.required, col: m.col, badge: bs[2], badgeBg: bs[0], badgeFg: bs[1], sample: m.col >= 0 ? sample(m.col) : '' };
+    });
+    const missingReq = E.FIELDS.filter(f => f.required && (!S.mapping[f.key] || S.mapping[f.key].col < 0)).map(f => f.label);
+    const mapWarning = missingReq.length ? 'Required fields not yet mapped: ' + missingReq.join(', ') + '. You can continue, but affected learners will fail validation.' : '';
+
+    // validation rows
+    const recs = this._recs || [];
+    const stats = recs.length ? this.impStats(recs) : { eligible: 0, issued: 0, pay: 0, acad: 0, valid: 0, blockedTotal: 0 };
+    const blankIgnored = S.impRows.length - recs.length;
+    const impStatCards = [
+      { label: 'ROWS', value: String(S.impRows.length), color: '#16233B' },
+      { label: 'LEARNERS', value: String(recs.length), color: '#16233B' },
+      { label: 'BLANK IGNORED', value: String(blankIgnored), color: '#5A6474' },
+      { label: 'ELIGIBLE', value: String(stats.eligible), color: '#1E7A4E' },
+      { label: 'ALREADY ISSUED', value: String(stats.issued), color: '#2E6BD6' },
+      { label: 'BLOCKED', value: String(stats.blockedTotal), color: '#B0402F' }
+    ];
+    const payBadge = (cat) => cat === 'eligible' ? ['#E7F1EC', '#1E7A4E'] : cat === 'blocked' ? ['#F7E7E3', '#B0402F'] : ['#FBF1DF', '#8A5D12'];
+    let learnerRows = recs.map(r => {
+      const eligible = (r.v.eligible || !!r.override) && !r.existing;
+      const pb = payBadge(r.v.payCat);
+      let status, stBg, stFg, detail = '';
+      if (r.existing) { status = 'ISSUED'; stBg = '#E6EEFB'; stFg = '#2E6BD6'; detail = r.existing.certificate_reference; }
+      else if (eligible) { status = r.override ? 'OVERRIDE' : 'ELIGIBLE'; stBg = '#E7F1EC'; stFg = '#1E7A4E'; detail = r.override ? r.override.reason : (r.v.warnings[0] || ''); }
+      else { status = 'BLOCKED'; stBg = '#F7E7E3'; stFg = '#B0402F'; detail = r.v.blocks.slice(0, 2).join(' · '); }
+      const payOnlyBlock = !r.existing && !r.v.eligible && !r.override && r.v.blockKinds.payment && r.v.academic && !r.v.blockKinds.validation;
+      return {
+        rowIndex: r.rowIndex, name: r.full_name || '(no name)', reg: r.registration_id,
+        idMasked: E.maskId(r.id_number), course: r.course ? r.course.code : (r.course_raw ? '?' : '—'),
+        marks: 'O ' + (r.overall_mark == null ? '—' : r.overall_mark) + ' · E ' + (r.effective_exam == null ? '—' : r.effective_exam),
+        pay: r.payment_status || '—', payBg: pb[0], payFg: pb[1],
+        status, stBg, stFg, detail,
+        sel: !!S.selected[r.rowIndex], selDisabled: !eligible, rowBg: eligible ? '#FFFFFF' : '#FDFCFA',
+        canOverride: payOnlyBlock && this.isAdmin(), issued: !!r.existing, certId: r.existing ? r.existing.id : '',
+        _eligible: eligible
+      };
+    });
+    if (S.showOnlyEligible) learnerRows = learnerRows.filter(r => r._eligible);
+    const selCount = Object.keys(S.selected).filter(k => S.selected[k]).length;
+    const eligibleIdxs = recs.filter(r => (r.v.eligible || r.override) && !r.existing).map(r => r.rowIndex);
+    const allSelected = eligibleIdxs.length > 0 && eligibleIdxs.every(i => S.selected[i]);
+
+    // preview
+    const pvRec = recs.find(r => r.rowIndex === S.previewIdx) || recs[0];
+    let pv = {};
+    if (pvRec) {
+      const cert = this.certModel(pvRec, null);
+      const nameLen = (pvRec.full_name || '').length;
+      let nameSize = E.nameStartSize(pvRec.full_name || '');
+      const estW = nameLen * nameSize * 0.52; // pt estimate
+      const maxW = 120 / 0.3528; // mm->pt
+      if (estW > maxW) nameSize = Math.max(13, Math.floor(maxW / (nameLen * 0.52)));
+      const courseTwoLines = (cert.course_name || '').length > 40;
+      const courseRuleTop = courseTwoLines ? 148.3 : 139.5;
+      const eligible = (pvRec.v.eligible || !!pvRec.override) && !pvRec.existing;
+      let qr = null;
+      if (st.qrEnabled && window.qrcode) {
+        try {
+          const q = window.qrcode(0, 'M'); q.addData(st.verifyUrl); q.make();
+          const n = q.getModuleCount(), cell = 4, cv = document.createElement('canvas');
+          cv.width = cv.height = n * cell;
+          const cx2 = cv.getContext('2d');
+          cx2.fillStyle = '#FFFFFF'; cx2.fillRect(0, 0, cv.width, cv.height);
+          cx2.fillStyle = '#16233B';
+          for (let r = 0; r < n; r++) for (let c2 = 0; c2 < n; c2++) if (q.isDark(r, c2)) cx2.fillRect(c2 * cell, r * cell, cell, cell);
+          qr = cv.toDataURL('image/png');
+        } catch (e) {}
+      }
+      const sigs = (st.signatories || []).filter(s => s && s.title).slice(0, 2);
+      const sigLefts = sigs.length === 1 ? [104] : [71, 137];
+      pv = {
+        pvSigs: sigs.map((s, i) => ({ left: sigLefts[i], name: s.name || '\u00A0', titleUpper: s.title.toUpperCase(), image: s.image || '', hasImage: !!s.image, noImage: !s.image })),
+        pvName: pvRec.full_name, pvNameSize: nameSize,
+        pvIdLine: pvRec.id_type ? pvRec.id_type + ': ' + pvRec.id_number : '',
+        pvWording: 'has successfully completed the prescribed assessment and examination requirements of the ' + st.officialName + ' in',
+        pvCourse: cert.course_name, pvCourseRuleTop: courseRuleTop,
+        pvAwardTop: courseRuleTop + 6.8, pvIssuedTop: courseRuleTop + 13.2,
+        pvAward: cert.award_date_text, pvIssue: cert.issue_date_text,
+        pvRef: pvRec.existing ? pvRec.existing.certificate_reference : '· · · · (assigned at issue)',
+        pvDraft: !pvRec.existing, pvQr: qr || '', pvHasQr: !!qr,
+        pvMeta: pvRec.registration_id + ' · ' + (pvRec.course ? pvRec.course.name : '—') + ' · intake ' + pvRec.intake_year + (pvRec.intake_month_code || ''),
+        pvCounter: (recs.indexOf(pvRec) + 1) + ' / ' + recs.length,
+        pvIssueDisabled: !eligible || !this.canIssue(), pvIssueOpacity: (!eligible || !this.canIssue()) ? 0.45 : 1,
+        pvIssueLabel: pvRec.existing ? 'Already issued' : 'Issue certificate',
+        pvBlockNote: pvRec.existing ? 'An active certificate already exists for this learner and course: ' + pvRec.existing.certificate_reference + '. Use the register to reprint or correct it.' : (!eligible ? 'Not eligible: ' + pvRec.v.blocks.join(' · ') : (pvRec.v.warnings[0] || ''))
+      };
+    }
+
+    // register
+    const q = E.norm(S.regQuery);
+    const filtered = certs.filter(c => {
+      if (S.regCourse && c.course_code !== S.regCourse) return false;
+      if (S.regStatus === 'reprinted') { if (!(c.reprint_count > 0)) return false; }
+      else if (S.regStatus === 'corrected') { if (!(c.revision_number > 0)) return false; }
+      else if (S.regStatus && c.status !== S.regStatus) return false;
+      if (S.regIntake && !((c.intake_year + c.intake_month).toLowerCase().includes(S.regIntake.toLowerCase()))) return false;
+      if (q) {
+        const idOk = this.isAdmin() || this.canIssue() ? E.norm(c.id_number_at_issue).includes(q) : false;
+        if (!(E.norm(c.certificate_reference).includes(q) || E.norm(c.full_name_at_issue).includes(q) || E.norm(c.registration_id).includes(q) || idOk)) return false;
+      }
+      return true;
+    });
+    const registerRows = filtered.slice(0, 200).map(c => {
+      const sc = stColors[c.status] || stColors.Issued;
+      return {
+        id: c.id, reference: c.certificate_reference, name: c.full_name_at_issue, reg: c.registration_id,
+        idMasked: E.maskId(c.id_number_at_issue),
+        courseIntake: c.course_code + ' · ' + c.intake_year + (c.intake_month || ''),
+        dates: (c.award_date || '—') + ' / ' + c.issue_date,
+        status: c.status, stBg: sc[0], stFg: sc[1],
+        statusSub: (c.revision_number ? 'R' + c.revision_number + ' · ' : '') + (c.reprint_count ? c.reprint_count + ' reprint(s)' : '')
+      };
+    });
+
+    // record detail
+    const rc = S.recordId ? this.findCert(S.recordId) : null;
+    let rec = {};
+    if (rc) {
+      const sc = stColors[rc.status] || stColors.Issued;
+      rec = {
+        recId: rc.id, recRef: rc.certificate_reference, recName: rc.full_name_at_issue,
+        recCourse: rc.course_name_at_issue + ' · intake ' + rc.intake_year + (rc.intake_month || ''),
+        recStatus: rc.status, recStBg: sc[0], recStFg: sc[1],
+        recFields: [
+          { k: 'Registration ID', v: rc.registration_id },
+          { k: rc.id_type_at_issue || 'ID', v: this.isAdmin() || this.canIssue() ? rc.id_number_at_issue : E.maskId(rc.id_number_at_issue) },
+          { k: 'Award date', v: rc.award_date || '—' },
+          { k: 'Issue date', v: rc.issue_date },
+          { k: 'Generated', v: new Date(rc.generated_at).toLocaleString('en-GB') },
+          { k: 'Generated by', v: rc.generated_by },
+          { k: 'Overall / exam mark', v: (rc.overall_mark == null ? '—' : rc.overall_mark) + ' / ' + (rc.effective_exam_mark == null ? '—' : rc.effective_exam_mark) + ' (stored, not printed)' },
+          { k: 'Payment at issue', v: rc.payment_status || '—' },
+          { k: 'Template version', v: rc.template_version },
+          { k: 'Revision', v: rc.revision_number ? 'R' + rc.revision_number : 'Original' },
+          { k: 'Reprints', v: String(rc.reprint_count || 0) },
+          { k: 'PDF SHA-256', v: (rc.pdf_hash || '—').slice(0, 16) + '…' }
+        ],
+        recEvents: (this._db.events || []).filter(e => e.certificate_id === rc.id).map(e => ({
+          type: e.event_type, by: e.performed_by, when: new Date(e.event_date).toLocaleString('en-GB'),
+          reason: e.reason, dot: evDot(e.event_type),
+          changes: e.previous_values && e.new_values ? Object.keys(e.new_values).filter(k => e.previous_values[k] !== e.new_values[k]).map(k => k + ': ' + e.previous_values[k] + ' → ' + e.new_values[k]).join(' · ') : ''
+        })),
+        recCanAdmin: this.isAdmin(), recCanRevoke: rc.status === 'Issued'
+      };
+    }
+
+    // settings
+    const sd = this._settingsDraft || st;
+    const instFields = [
+      { key: 'officialName', label: 'OFFICIAL NAME', value: sd.officialName, span: 2 },
+      { key: 'tagline', label: 'TAGLINE', value: sd.tagline, span: 1 },
+      { key: 'city', label: 'AWARD CITY', value: sd.city, span: 1 },
+      { key: 'bqaEtp', label: 'BQA ETP NO.', value: sd.bqaEtp, span: 1 },
+      { key: 'tvet', label: 'TVET NO.', value: sd.tvet, span: 1 },
+      { key: 'hrdc', label: 'HRDC WORDING', value: sd.hrdc, span: 1 },
+      { key: 'companyReg', label: 'COMPANY REG.', value: sd.companyReg, span: 1 },
+      { key: 'telephone', label: 'TELEPHONE', value: sd.telephone, span: 1 },
+      { key: 'website', label: 'WEBSITE', value: sd.website, span: 1 },
+      { key: 'verifyUrl', label: 'VERIFICATION URL (QR)', value: sd.verifyUrl, span: 2 },
+      { key: 'address', label: 'ADDRESS', value: sd.address, span: 2 }
+    ];
+    const pr = sd.paymentRules || E.PAYMENT_STATUS_RULES;
+    const payRuleFields = [
+      { key: 'eligible', label: 'ELIGIBLE (RELEASE)', value: pr.eligible.join(', '), color: '#1E7A4E' },
+      { key: 'blocked', label: 'BLOCKED', value: pr.blocked.join(', '), color: '#B0402F' },
+      { key: 'review', label: 'REVIEW (HELD FOR ADMIN)', value: pr.review.join(', '), color: '#8A5D12' }
+    ];
+
+
+    const modal = S.modal || {};
+    const bulk = S.bulk;
+
+    return {
+      // shell
+      isLogin: !S.session, isApp: !!S.session,
+      isDashboard: S.view === 'dashboard', isImport: S.view === 'import', isPreview: S.view === 'preview',
+      isRegister: S.view === 'register', isRecord: S.view === 'record', isSettings: S.view === 'settings',
+      email: S.email, pw: S.pw, err: S.err, loginLabel: S.busyLogin ? 'Signing in…' : 'Sign in',
+      showDemoHint: (this.props.showDemoHint ?? true) && !this._supa && !this.isProduction(),
+      showSetupBtn: this.isProduction() && !this._supa,
+      openSetup: () => this.setState({ setupOpen: true, setupMsg: '', setupTested: false }),
+      setupOpen: S.setupOpen, setupUrl: S.setupUrl, setupKey: S.setupKey,
+      setupMsg: S.setupMsg,
+      setupMsgBg: S.setupMsgKind === 'ok' ? '#E7F1EC' : S.setupMsgKind === 'err' ? '#F7E7E3' : '#E6EEFB',
+      setupMsgFg: S.setupMsgKind === 'ok' ? '#1E7A4E' : S.setupMsgKind === 'err' ? '#B0402F' : '#2E6BD6',
+      onSetupUrl: (e) => this.setState({ setupUrl: e.target.value, setupTested: false, setupMsg: '' }),
+      onSetupKey: (e) => this.setState({ setupKey: e.target.value, setupTested: false, setupMsg: '' }),
+      setupCancel: () => this.setState({ setupOpen: false, setupMsg: '' }),
+      setupTest: () => this.testSetup(),
+      setupTestLabel: S.setupTesting ? 'Testing…' : 'Test connection',
+      setupSave: () => this.saveSetup(),
+      setupSaveDisabled: !S.setupTested || S.setupTesting,
+      setupSaveOpacity: (!S.setupTested || S.setupTesting) ? 0.45 : 1,
+      userName: (S.session || {}).name || '', userRole: (S.session || {}).role || '',
+      modeLabel: this._supa ? 'Supabase connected' : 'Local demo registry',
+      navStyleDashboard: navBtn('dashboard'), navStyleImport: navBtn('import'), navStyleRegister: navBtn('register'), navStyleSettings: navBtn('settings'),
+      onEmail: (e) => this.setState({ email: e.target.value }),
+      onPw: (e) => this.setState({ pw: e.target.value }),
+      onPwKey: (e) => { if (e.key === 'Enter') this.doLogin(); },
+      onLogin: () => this.doLogin(), onLogout: () => this.doLogout(),
+      nav: (e) => this.setState({ view: e.currentTarget.getAttribute('data-view'), err: '' }),
+      todayLong: E.fmtDate(new Date()),
+      // dashboard
+      statCards, courseBars, recentEvents, hasActivity: recentEvents.length > 0, noActivity: recentEvents.length === 0,
+      latestBatchText: lastBatch ? lastBatch.original_filename + ' — ' + lastBatch.populated + ' learners, ' + lastBatch.eligible_count + ' eligible, ' + lastBatch.blocked_count + ' blocked. Imported ' + new Date(lastBatch.imported_at).toLocaleString('en-GB') + ' by ' + lastBatch.imported_by + '.' : 'No imports yet.',
+      downloadTemplate: () => { E.makeTemplateWorkbook(); this.showToast('Template downloaded.'); },
+      // import
+      wizardSteps, impStep1: S.impStep === 1, impStep2: S.impStep === 2, impStep3: S.impStep === 3, impStep4: S.impStep === 4,
+      impFileLine, sheetOptions: S.impSheets,
+      onFile: (e) => { const f = e.target.files[0]; if (f) this.handleFile(f); e.target.value = ''; },
+      onSheetPick: (e) => this.pickSheet(e.currentTarget.getAttribute('data-sheet')),
+      impRestart: () => this.setState({ impStep: 1, impFile: null, impSheets: [], err: '' }),
+      impBackToSheets: () => this.setState({ impStep: S.impSheets.length > 1 ? 2 : 1 }),
+      impBackToMapping: () => this.setState({ impStep: 3 }),
+      // mapping
+      mappingRows, headerOpts, mapWarning,
+      onMapChange: (e) => { const f = e.target.getAttribute('data-field'); const col = parseInt(e.target.value, 10); this.setState(s => ({ mapping: Object.assign({}, s.mapping, { [f]: { col, confidence: 'manual' } }) })); },
+      onMapReset: () => this.setState({ mapping: E.detectMapping(S.impHeaders) }),
+      onMapConfirm: () => this.runValidation(),
+      // validation
+      impStatCards, learnerRows, selCount: String(selCount), allSelected,
+      bulkDisabled: selCount === 0 || !this.canIssue(), bulkBtnOpacity: (selCount === 0 || !this.canIssue()) ? 0.45 : 1,
+      showOnlyEligible: S.showOnlyEligible,
+      toggleOnlyEligible: () => this.setState({ showOnlyEligible: !S.showOnlyEligible }),
+      impIssueDate: S.impIssueDate, issueDateLocked: !this.isAdmin(),
+      onIssueDate: (e) => this.setState({ impIssueDate: e.target.value }),
+      toggleRow: (e) => { const i = +e.target.getAttribute('data-idx'); this.setState(s => ({ selected: Object.assign({}, s.selected, { [i]: !s.selected[i] }) })); },
+      toggleAll: () => { const sel = {}; if (!allSelected) eligibleIdxs.forEach(i => sel[i] = true); this.setState({ selected: sel }); },
+      openPreview: (e) => this.setState({ view: 'preview', previewIdx: +e.currentTarget.getAttribute('data-idx') }),
+      openOverride: (e) => { const i = +e.currentTarget.getAttribute('data-idx'); const r = this._recs.find(x => x.rowIndex === i); this.setState({ modal: { type: 'override', rec: r, title: 'Override payment-status block', body: r.full_name + ' — payment status “' + r.payment_status + '”. An override releases the certificate despite this status. Your identity and reason are recorded permanently in the audit trail.', needsReason: true, confirmLabel: 'Authorise override', reason: '' } }); },
+      bulkStart: () => this.runBulk(),
+      // preview
+      zoom: S.zoom,
+      zoomIn: () => this.setState({ zoom: Math.min(2, +(S.zoom + 0.1).toFixed(2)) }),
+      zoomOut: () => this.setState({ zoom: Math.max(0.3, +(S.zoom - 0.1).toFixed(2)) }),
+      zoomFit: () => this.setState({ zoom: 0.75 }), zoom100: () => this.setState({ zoom: 1 }),
+      backToValidation: () => this.setState({ view: 'import' }),
+      prevLearner: () => { const i = recs.indexOf(pvRec); if (i > 0) this.setState({ previewIdx: recs[i - 1].rowIndex }); },
+      nextLearner: () => { const i = recs.indexOf(pvRec); if (i < recs.length - 1) this.setState({ previewIdx: recs[i + 1].rowIndex }); },
+      issueCurrent: () => pvRec && this.issueSingle(pvRec),
+      setNameUpper: st.officialName.toUpperCase(), setBqa: st.bqaEtp, setTvet: st.tvet, setHrdc: st.hrdc,
+      setCity: st.city, setTagline: st.tagline, setWebsite: (st.website || '').replace(/^https?:\/\//, ''),
+      setPhone: st.telephone, setEmail: st.email, setAddress: st.address,
+      ...(function (addr) { const p = (addr || '').split(/,\s*/); return p.length >= 4 ? { setAddr1: p.slice(0, 2).join(', '), setAddr2: p.slice(2, p.length - 2).join(', '), setAddr3: p.slice(-2).join(', ') } : { setAddr1: addr, setAddr2: '', setAddr3: '' }; })(st.address),
+      ...pv,
+      // register
+      regQuery: S.regQuery, regCourse: S.regCourse, regStatus: S.regStatus, regIntake: S.regIntake,
+      onRegQuery: (e) => this.setState({ regQuery: e.target.value }),
+      onRegCourse: (e) => this.setState({ regCourse: e.target.value }),
+      onRegStatus: (e) => this.setState({ regStatus: e.target.value }),
+      onRegIntake: (e) => this.setState({ regIntake: e.target.value }),
+      registerRows, registerEmpty: registerRows.length === 0,
+      openRecord: (e) => this.setState({ view: 'record', recordId: e.currentTarget.getAttribute('data-id') }),
+      backToRegister: () => this.setState({ view: 'register' }),
+      reprintCert: (e) => { const id = e.currentTarget.getAttribute('data-id'); this.setState({ modal: { type: 'reprint', certId: id, title: 'Reprint certificate', body: 'The original certificate is downloaded again with its original reference — no new sequence number is created. The reprint count and your identity are recorded.', needsReason: false, confirmLabel: 'Reprint', reason: '', fields: [{ key: 'reason', label: 'REASON (OPTIONAL)', value: '' }] } }); },
+      exportCsv: () => {
+        const cols = ['certificate_reference', 'full_name_at_issue', 'registration_id', 'course_code', 'intake_year', 'intake_month', 'award_date', 'issue_date', 'status', 'revision_number', 'reprint_count', 'generated_by', 'generated_at'];
+        const esc = (v) => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+        const csv = [cols.join(','), ...filtered.map(c => cols.map(k => esc(k === 'id_number' ? E.maskId(c[k]) : c[k])).join(','))].join('\r\n');
+        E.downloadBlob(new Blob([csv], { type: 'text/csv' }), 'iAB Certificate Register.csv', 'text/csv');
+      },
+      // record
+      ...rec,
+      openCorrect: (e) => { const c = this.findCert(e.currentTarget.getAttribute('data-id')); this.setState({ modal: { type: 'correct', certId: c.id, title: 'Regenerate corrected version', body: 'Issues ' + (c.base_reference || c.certificate_reference) + '-R' + ((c.revision_number || 0) + 1) + ' and marks the current version Superseded. Before/after values and your reason are recorded. Leave a field unchanged to keep it.', needsReason: true, confirmLabel: 'Issue corrected version', reason: '', fields: [ { key: 'full_name', label: 'FULL NAME', value: c.full_name_at_issue }, { key: 'id_number', label: 'ID NUMBER', value: c.id_number_at_issue }, { key: 'issue_date', label: 'ISSUE DATE (YYYY-MM-DD)', value: c.issue_date } ] } }); },
+      openRevoke: (e) => { const c = this.findCert(e.currentTarget.getAttribute('data-id')); this.setState({ modal: { type: 'revoke', certId: c.id, title: 'Revoke certificate', body: c.certificate_reference + ' — ' + c.full_name_at_issue + '. A revoked certificate remains on the register with full history and shows as Revoked on verification.', needsReason: true, confirmLabel: 'Revoke', reason: '' } }); },
+      // settings
+      settingsLocked: !this.isAdmin(), settingsSaveOpacity: this.isAdmin() ? 1 : 0.45,
+      instFields, payRuleFields, setQrEnabled: sd.qrEnabled,
+      setSupaUrl: sd.supabaseUrl || '', setSupaKey: sd.supabaseAnonKey || '',
+      recCanAdminSettings: this.isAdmin() && !this._supa,
+      onSetField: (e) => { this.draft()[e.target.getAttribute('data-key')] = e.target.value; this.forceUpdate(); },
+      onQrToggle: () => { this.draft().qrEnabled = !this.draft().qrEnabled; this.forceUpdate(); },
+      onPayRule: (e) => { const k = e.target.getAttribute('data-key'); this.draft().paymentRules[k] = e.target.value.split(',').map(s => s.trim()).filter(Boolean); this.forceUpdate(); },
+      saveSettings: () => { if (!this.isAdmin()) return; this._db.settings = this.draft(); this._settingsDraft = null; const s2 = this._db.settings; this._supa = (s2.supabaseUrl && s2.supabaseAnonKey) ? E.makeSupabase(s2.supabaseUrl, s2.supabaseAnonKey) : null; this.saveDB(); this.showToast('Settings saved.'); },
+      openResetData: () => this.setState({ modal: { type: 'reset', title: 'Clear local demo registry', body: 'Removes all locally stored demo certificates, counters and audit events on THIS browser. This cannot be undone. Supabase data is never touched by this action.', needsReason: false, confirmLabel: 'Clear demo data' } }),
+      // modal
+      hasModal: !!S.modal, modalTitle: modal.title || '', modalBody: modal.body || '',
+      modalNeedsReason: !!modal.needsReason, modalReason: modal.reason || '',
+      modalFields: modal.fields || [], modalErr: modal.err || '',
+      modalConfirmLabel: modal.confirmLabel || 'Confirm',
+      modalConfirmBg: modal.type === 'revoke' || modal.type === 'reset' ? '#B0402F' : '#0A1628',
+      onModalReason: (e) => this.setState({ modal: Object.assign({}, S.modal, { reason: e.target.value, err: '' }) }),
+      onModalField: (e) => { const k = e.target.getAttribute('data-key'); const flds = (S.modal.fields || []).map(f => f.key === k ? Object.assign({}, f, { value: e.target.value }) : f); this.setState({ modal: Object.assign({}, S.modal, { fields: flds }) }); },
+      modalCancel: () => this.setState({ modal: null }),
+      modalConfirm: () => this.confirmModal(),
+      // bulk
+      bulkRunning: !!bulk, bulkPct: bulk ? Math.round(100 * (bulk.done + bulk.failed + bulk.skipped) / bulk.total) : 0,
+      bulkCurrentText: bulk ? 'Current: ' + bulk.current : '',
+      bulkSummary: bulk ? bulk.done + ' issued · ' + bulk.skipped + ' already issued · ' + bulk.failed + ' failed · of ' + bulk.total : '',
+      bulkCancel: () => { this._cancelBulk = true; },
+      toast: S.toast
+    };
+  }
+  draft() {
+    if (!this._settingsDraft) this._settingsDraft = JSON.parse(JSON.stringify(this.settings()));
+    return this._settingsDraft;
+  }
+  async confirmModal() {
+    const m = this.state.modal; if (!m) return;
+    if (m.needsReason && !(m.reason || '').trim()) { this.setState({ modal: Object.assign({}, m, { err: 'A reason is required — it is recorded in the audit trail.' }) }); return; }
+    const fields = {}; (m.fields || []).forEach(f => fields[f.key] = f.value);
+    this.setState({ modal: null });
+    if (m.type === 'override') { m.rec.override = { reason: m.reason, by: this.state.session.email }; this.showToast('Override recorded for ' + m.rec.full_name + '.'); const sel = Object.assign({}, this.state.selected, { [m.rec.rowIndex]: true }); this.setState({ selected: sel }); }
+    else if (m.type === 'awardDate') { await this.reallyIssueSingle(m.rec); }
+    else if (m.type === 'bulkAwardDate') { this._bulkConfirmed = true; await this.runBulk(); }
+    else if (m.type === 'reprint') { await this.doReprint(m.certId, fields.reason); }
+    else if (m.type === 'correct') { await this.doCorrect(m.certId, fields, m.reason); }
+    else if (m.type === 'revoke') { const c = this.findCert(m.certId); c.status = 'Revoked'; this.audit(c.id, 'Revoked', m.reason); this.saveDB(); this.showToast(c.certificate_reference + ' revoked.'); }
+    else if (m.type === 'reset') { localStorage.removeItem('iab_cert_registry_v1'); this._db = this.E().LocalDB.load(); this._db.settings = Object.assign({}, this.E().INSTITUTION_DEFAULTS, { paymentRules: JSON.parse(JSON.stringify(this.E().PAYMENT_STATUS_RULES)) }); this._recs = []; this.saveDB(); this.showToast('Local demo registry cleared.'); }
+  }
+}
+</script>
+</body>
+</html>
