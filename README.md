@@ -11,7 +11,6 @@ Upload the ENTIRE contents of this folder to the root of your repository:
 
 - `index.html` — the application (PRODUCTION entry file; GitHub Pages opens this)
 - `verify.html` — public certificate-verification page (QR target)
-- `index-demo.html` — LOCAL DEMO ONLY, DO NOT DEPLOY to a public site
 - `support.js`, `src/`, `_ds/`, `assets/` — runtime, engine, brand styles, logo/signature artwork
 - `database/` — Supabase SQL (schema, policies, functions, seed) — contains no secrets
 - `.nojekyll` — required so GitHub Pages serves folders starting with `_` (do not delete)
@@ -46,8 +45,8 @@ table has Row Level Security and certificate numbers are issued by the
 
 Until Supabase is configured, `index.html` shows:
 “Production database and authentication have not yet been configured.”
-It never falls back to demo credentials. `index-demo.html` (local evaluation only)
-uses a browser-local registry with fictional data.
+There is no demo or local login: staff sign-in is Supabase Auth only. Never commit passwords;
+run `git config core.hooksPath .githooks` once per clone to enable the secret check.
 
 ## Verification page
 

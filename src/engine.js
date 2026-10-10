@@ -224,25 +224,20 @@
 
   // ---------- Local (demo) database adapter ----------
   const LS_KEY = 'iab_cert_registry_v1';
-  const isProductionBuild = () => !!(window.DEPLOYMENT_CONFIG && window.DEPLOYMENT_CONFIG.production);
+  // No local user accounts: staff authentication is Supabase-only.
   function emptyDB() {
-    // Demo accounts exist ONLY in non-production builds (local evaluation registry).
-    return { certificates: [], counters: {}, events: [], batches: [], learners: [], users: isProductionBuild() ? [] : [
-      { email: 'admin@iab.co.bw', name: 'iAB Administrator', role: 'Administrator', password: 'iab2026' },
-      { email: 'issuer@iab.co.bw', name: 'Certificate Issuer', role: 'Certificate Issuer', password: 'iab2026' },
-      { email: 'viewer@iab.co.bw', name: 'Records Viewer', role: 'Viewer', password: 'iab2026' }
-    ], settings: null, mappings: {} };
+    return { certificates: [], counters: {}, events: [], batches: [], learners: [], settings: null, mappings: {} };
   }
   const LocalDB = {
     mode: 'local',
-    load() { try { const raw = localStorage.getItem(LS_KEY); return raw ? JSON.parse(raw) : emptyDB(); } catch (e) { return emptyDB(); } },
-    save(db) { localStorage.setItem(LS_KEY, JSON.stringify(db)); },
-    signIn(db, email, password) {
-      if (isProductionBuild()) return null; // demo sign-in is disabled in production builds
-      const u = db.users.find((x) => norm(x.email) === norm(email));
-      if (!u || u.password !== password) return null;
-      return { email: u.email, name: u.name, role: u.role };
+    load() {
+      try {
+        const db = JSON.parse(localStorage.getItem(LS_KEY) || 'null') || emptyDB();
+        delete db.users; // purge legacy demo accounts saved by older builds (dropped on next save)
+        return db;
+      } catch (e) { return emptyDB(); }
     },
+    save(db) { localStorage.setItem(LS_KEY, JSON.stringify(db)); },
     reserveReference(db, course_code, intake_year, intake_month, issueDate) {
       const key = course_code + ':' + intake_year + ':' + intake_month;
       const seq = (db.counters[key] || 0) + 1;

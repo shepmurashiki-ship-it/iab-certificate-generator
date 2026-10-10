@@ -1,0 +1,4 @@
+#!/bin/sh
+# Blocks commits that add secrets or demo credentials. Enable once per clone:
+#   git config core.hooksPath .githooks
+exec node tests/security-check.mjs --staged

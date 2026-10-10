@@ -65,12 +65,6 @@
             <button onClick="{{ openSetup }}" style="background:#FFFFFF;color:#16233B;border:1px solid #C89B2D;border-radius:5px;padding:11px;font-size:12.5px;font-weight:600;cursor:pointer;letter-spacing:0.06em" style-hover="background:#FBF7EC">CONFIGURE SUPABASE CONNECTION</button>
           </sc-if>
         </div>
-        <sc-if value="{{ showDemoHint }}" hint-placeholder-val="{{ false }}">
-          <div style="margin-top:18px;border-top:1px solid #EFEDE7;padding-top:14px;font-size:12px;color:#5A6474;line-height:1.6">
-            <strong style="color:#16233B">Local demo mode</strong> — no Supabase configured yet. Sign in with
-            <span style="font-family:'IBM Plex Mono',monospace">admin@iab.co.bw</span>, <span style="font-family:'IBM Plex Mono',monospace">issuer@iab.co.bw</span> or <span style="font-family:'IBM Plex Mono',monospace">viewer@iab.co.bw</span> — password <span style="font-family:'IBM Plex Mono',monospace">iab2026</span>. Connect Supabase in Settings for shared, secured records.
-          </div>
-        </sc-if>
       </div>
       <div style="text-align:center;margin-top:18px;font-size:11.5px;color:#AEB8C7">Learner information and certificates are stored securely and may be accessed only by authorised iAB staff.</div>
     </div>
@@ -631,7 +625,7 @@
 
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props="{&quot;showDemoHint&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Login&quot;}}">
+<script type="text/x-dc" data-dc-script data-props="{}">
 class Component extends DCLogic {
   state = {
     view: 'login', session: null, err: '', busyLogin: false,
@@ -716,9 +710,8 @@ class Component extends DCLogic {
     this.setState({ busyLogin: true, err: '' });
     try {
       let sess = null;
-      if (this._supa) sess = await this._supa.signIn(email, pw);
-      else if (this.isProduction()) throw new Error('Production database and authentication have not yet been configured. Please contact the iAB system administrator.');
-      else sess = this.E().LocalDB.signIn(this._db, email, pw);
+      if (!this._supa) throw new Error('Production database and authentication have not yet been configured. Please contact the iAB system administrator.');
+      sess = await this._supa.signIn(email, pw);
       if (!sess) throw new Error('Invalid email or password.');
       sessionStorage.setItem('iab_cert_session', JSON.stringify(sess));
       this.setState({ session: sess, view: 'dashboard', err: '', busyLogin: false, pw: '' });
@@ -974,7 +967,7 @@ class Component extends DCLogic {
   // ---------- renderVals ----------
   renderVals() {
     const S = this.state, E = this.E();
-    if (!E || !this._db) return { isLogin: true, showDemoHint: false, loginLabel: 'Sign in' };
+    if (!E || !this._db) return { isLogin: true, loginLabel: 'Sign in' };
     const st = this.settings();
     const navBtn = (v) => 'background:' + (S.view === v || (v === 'import' && (S.view === 'preview')) || (v === 'register' && S.view === 'record') ? '#1E3150' : 'transparent') + ';color:' + (S.view === v ? '#FFFFFF' : '#AEB8C7') + ';border:none;border-radius:5px;padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer;letter-spacing:0.02em';
     const certs = this._db.certificates || [];
@@ -1197,7 +1190,6 @@ class Component extends DCLogic {
       isDashboard: S.view === 'dashboard', isImport: S.view === 'import', isPreview: S.view === 'preview',
       isRegister: S.view === 'register', isRecord: S.view === 'record', isSettings: S.view === 'settings',
       email: S.email, pw: S.pw, err: S.err, loginLabel: S.busyLogin ? 'Signing in…' : 'Sign in',
-      showDemoHint: (this.props.showDemoHint ?? true) && !this._supa && !this.isProduction(),
       showSetupBtn: this.isProduction() && !this._supa,
       openSetup: () => this.setState({ setupOpen: true, setupMsg: '', setupTested: false }),
       setupOpen: S.setupOpen, setupUrl: S.setupUrl, setupKey: S.setupKey,
