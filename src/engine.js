@@ -290,15 +290,15 @@
 
   // ---------- Certificate layout (shared mm coordinate model: preview + PDF) ----------
   // Reference-family composition: white body, sculptural navy/gold left feature,
-  // ceremonial content on cx=130, signatures, left accreditation block, navy brand band.
+  // ceremonial content on cx=130, signatures, verification row, navy brand band.
+  // No regulator (BQA/HRDC) logos: accreditation is text-only in the footer chip.
   // Art baked into assets/cert-bg-v5.jpg on the same mm grid.
   const L = {
     cx: 130, contentLeft: 68, contentRight: 196,
     titleY: 42, subY: 52, ruleY: 58,
     certifyY: 70, nameY: 87, nameRuleY: 94, idY: 101.5,
     wordingY: 112.5, courseY: 133,
-    sigLineY: 198, sigNameY: 204, sigTitleY: 209.5,
-    lowCx: 130, recogHeadY: 215.5, logoRowMid: 227,
+    sigLineY: 210, sigNameY: 216, sigTitleY: 221.5,
     zoneRuleY: 247.5, refY: 254, refIssY: 259.5,
     footTop: 266, footTextX: 45.5,
     qr: { x: 168, y: 249, size: 14 }
@@ -409,7 +409,7 @@
       pageCount: 1, noHorizontalOverflow: true, noVerticalOverflow: true,
       noCriticalElementsOutsideSafeArea: true, logoVisible: false,
       studentNameVisible: false, courseNameVisible: false, signaturesVisible: false,
-      regulatoryLogosVisible: false, referenceVisible: false, accreditationVisible: false
+      referenceVisible: false, accreditationVisible: false
     };
 
     // ---- Background: white body + navy/gold left feature + brand band (baked art) ----
@@ -517,33 +517,6 @@
     // small gold marker between the two signature blocks
     if (sigs.length === 2) page.drawSvgPath('M0 -3.5 L2.6 0 L0 3.5 L-2.6 0 Z', { x: X(L.cx), y: Y(L.sigLineY - 4), color: C.goldMet, scale: 0.6 });
     preflight.signaturesVisible = sigs.length >= 2 && sigImgCount >= 2;
-
-    // ---- Unified lower-information zone (centred on the page) ----
-    const lowCentre = (t, ymm, size, font, color, spacing, bold) => {
-      const f = bold ? sansBold : font;
-      let w = f.widthOfTextAtSize(t, size) + (spacing ? spacing * (t.length - 1) : 0);
-      let x = X(L.lowCx) - w / 2;
-      if (spacing) { for (const ch of t) { page.drawText(ch, { x, y: Y(ymm), size, font: f, color }); x += f.widthOfTextAtSize(ch, size) + spacing; } }
-      else page.drawText(t, { x, y: Y(ymm), size, font: f, color });
-    };
-    // heading with short gold side rules
-    lowCentre('ACCREDITATION AND RECOGNITION', L.recogHeadY, 7.2, sans, C.navyInk, 1.2);
-    const headW = sans.widthOfTextAtSize('ACCREDITATION AND RECOGNITION', 7.2) + 1.2 * 28;
-    page.drawLine({ start: { x: X(L.lowCx) - headW / 2 - X(9), y: Y(L.recogHeadY - 0.9) }, end: { x: X(L.lowCx) - headW / 2 - X(3), y: Y(L.recogHeadY - 0.9) }, thickness: 0.6, color: C.goldMet });
-    page.drawLine({ start: { x: X(L.lowCx) + headW / 2 + X(3), y: Y(L.recogHeadY - 0.9) }, end: { x: X(L.lowCx) + headW / 2 + X(9), y: Y(L.recogHeadY - 0.9) }, thickness: 0.6, color: C.goldMet });
-    const [bqaBytes, hrdcBytes] = await Promise.all([fetchBytes('assets/bqa-logo.png'), fetchBytes('assets/hrdc-logo.png')]);
-    let bqaImg = null, hrdcImg = null;
-    try { if (bqaBytes) bqaImg = await doc.embedPng(bqaBytes); } catch (e) {}
-    try { if (hrdcBytes) hrdcImg = await doc.embedPng(hrdcBytes); } catch (e) {}
-    const bqaH = X(17), hrdcH = X(11.5);
-    const bqaW = bqaImg ? bqaH * (bqaImg.width / bqaImg.height) : 0;
-    const hrdcW = hrdcImg ? hrdcH * (hrdcImg.width / hrdcImg.height) : 0;
-    const gap = X(11);
-    let lx = X(L.lowCx) - (bqaW + hrdcW + gap) / 2;
-    const midY = Y(L.logoRowMid);
-    if (bqaImg) { page.drawImage(bqaImg, { x: lx, y: midY - bqaH / 2, width: bqaW, height: bqaH }); lx += bqaW + gap; }
-    if (hrdcImg) { page.drawImage(hrdcImg, { x: lx, y: midY - hrdcH / 2, width: hrdcW, height: hrdcH }); }
-    preflight.regulatoryLogosVisible = !!(bqaImg && hrdcImg);
 
     // ---- Verification band: gold rule, ref + issue date left, QR right ----
     page.drawLine({ start: { x: X(26), y: Y(L.zoneRuleY) }, end: { x: X(184), y: Y(L.zoneRuleY) }, thickness: 0.5, color: C.goldMet });

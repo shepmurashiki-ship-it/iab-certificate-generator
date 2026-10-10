@@ -359,7 +359,7 @@
           <div style="position:absolute;left:64mm;top:{{ pvIssuedTop }}mm;width:132mm;text-align:center;color:#5A6474;font-size:9.5pt">Issued on {{ pvIssue }}</div>
           <!-- signatures -->
           <sc-for list="{{ pvSigs }}" as="sg" hint-placeholder-count="0">
-            <div style="position:absolute;left:{{ sg.left }}mm;top:177.5mm;width:52mm;text-align:center">
+            <div style="position:absolute;left:{{ sg.left }}mm;top:{{ sg.top }}mm;width:52mm;text-align:center">
               <sc-if value="{{ sg.hasImage }}" hint-placeholder-val="{{ false }}"><div style="width:36mm;height:17mm;margin:0 auto 1mm;background-image:url({{ sg.image }});background-size:contain;background-repeat:no-repeat;background-position:center bottom"></div></sc-if>
               <sc-if value="{{ sg.noImage }}" hint-placeholder-val="{{ true }}"><div style="height:17mm"></div></sc-if>
               <div style="border-top:0.4px solid #2C374A;margin:0 0 1.5mm"></div>
@@ -367,15 +367,7 @@
               <div style="color:#5A6474;font-size:7pt;letter-spacing:0.1em;margin-top:0.5mm">{{ sg.titleUpper }}</div>
             </div>
           </sc-for>
-          <div style="position:absolute;left:129mm;top:193mm;width:2mm;height:2.6mm;background:#C89B2D;clip-path:polygon(50% 0, 100% 50%, 50% 100%, 0 50%)"></div>
-          <!-- accreditation & recognition (heading + logos, centred on the signature axis) -->
-          <div style="position:absolute;left:65mm;top:212.6mm;width:130mm;text-align:center;color:#173A5E;font-size:7.2pt;letter-spacing:0.12em;font-weight:600">ACCREDITATION AND RECOGNITION</div>
-          <div style="position:absolute;left:83mm;top:214mm;width:6mm;border-top:0.6px solid #C89B2D"></div>
-          <div style="position:absolute;left:171mm;top:214mm;width:6mm;border-top:0.6px solid #C89B2D"></div>
-          <div style="position:absolute;left:65mm;top:218.5mm;width:130mm;height:17mm;display:flex;align-items:center;justify-content:center;gap:12mm">
-            <img src="assets/bqa-logo.png" alt="Botswana Qualifications Authority" style="height:17mm;display:block">
-            <img src="assets/hrdc-logo.png" alt="Human Resource Development Council of Botswana" style="height:11.5mm;display:block">
-          </div>
+          <div style="position:absolute;left:129mm;top:{{ pvSigMarkTop }}mm;width:2mm;height:2.6mm;background:#C89B2D;clip-path:polygon(50% 0, 100% 50%, 50% 100%, 0 50%)"></div>
           <!-- verification row -->
           <div style="position:absolute;left:26mm;top:247.5mm;width:158mm;border-top:0.5px solid #C89B2D"></div>
           <div style="position:absolute;left:26mm;top:250.4mm;color:#173A5E;font-size:10pt;font-weight:600"><span style="color:#A8801F">Ref No.: </span>{{ pvRef }}</div>
@@ -537,7 +529,7 @@
       <div style="display:flex;flex-direction:column;gap:14px">
         <div style="background:#FFFFFF;border:1px solid #EFEDE7;border-radius:8px;padding:22px">
           <div style="font-size:11px;letter-spacing:0.14em;color:#5A6474;font-weight:600;margin-bottom:6px">CERTIFICATE ASSETS</div>
-          <div style="font-size:12.5px;color:#5A6474;line-height:1.7">Certificates carry the official iAB mark, the supplied BQA and HRDC logos, and the approved CEO (S. Murashiki) and Quality Assurance signatures (<span style="font-family:'IBM Plex Mono',monospace">assets/</span>). Only Administrators may replace these central assets; changes are recorded in the audit trail.</div>
+          <div style="font-size:12.5px;color:#5A6474;line-height:1.7">Certificates carry the official iAB mark and the approved CEO (S. Murashiki) and Quality Assurance signatures (<span style="font-family:'IBM Plex Mono',monospace">assets/</span>). Only Administrators may replace these central assets; changes are recorded in the audit trail.</div>
         </div>
         <div style="background:#FFFFFF;border:1px solid #EFEDE7;border-radius:8px;padding:22px">
           <div style="font-size:11px;letter-spacing:0.14em;color:#5A6474;font-weight:600;margin-bottom:6px">DATABASE CONNECTION</div>
@@ -1097,7 +1089,8 @@ class Component extends DCLogic {
       const sigs = (st.signatories || []).filter(s => s && s.title).slice(0, 2);
       const sigLefts = sigs.length === 1 ? [104] : [71, 137];
       pv = {
-        pvSigs: sigs.map((s, i) => ({ left: sigLefts[i], name: s.name || '\u00A0', titleUpper: s.title.toUpperCase(), image: s.image || '', hasImage: !!s.image, noImage: !s.image })),
+        pvSigMarkTop: E.L.sigLineY - 5, // preview signature offsets track the shared PDF signature line (E.L)
+        pvSigs: sigs.map((s, i) => ({ left: sigLefts[i], top: E.L.sigLineY - 20.5, name: s.name || '\u00A0', titleUpper: s.title.toUpperCase(), image: s.image || '', hasImage: !!s.image, noImage: !s.image })),
         pvName: pvRec.full_name, pvNameSize: nameSize,
         pvIdLine: pvRec.id_type ? pvRec.id_type + ': ' + pvRec.id_number : '',
         pvWording: 'has successfully completed the prescribed assessment and examination requirements of the ' + st.officialName + ' in',
