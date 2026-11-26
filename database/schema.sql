@@ -1,7 +1,7 @@
 -- iAB Certificate Generator — Supabase schema
 -- Run in the Supabase SQL editor (or psql) in this order:
 --   1. schema.sql   2. policies.sql   3. seed.sql
--- migrations.sql re-lists these as ordered migrations for existing projects.
+-- Then apply database/migrations/NNN_*.sql in numeric order (each is idempotent; each has a .rollback.sql).
 
 create extension if not exists "pgcrypto";
 

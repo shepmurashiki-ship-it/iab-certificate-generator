@@ -38,7 +38,7 @@
     email: 'admin@iab.co.bw',
     address: 'Unit 1, Plot 102, Light Industrial, Commerce Park, Gaborone, Botswana',
     website: 'https://iab.co.bw',
-    verifyUrl: 'https://iab.co.bw/verify',
+    verifyUrl: 'https://shepmurashiki-ship-it.github.io/iab-certificate-generator/verify.html',
     city: 'Gaborone',
     templateVersion: 'CERT-2026-REF-7',
     qrEnabled: true,
@@ -217,6 +217,29 @@
     return s.slice(0, 3) + '****' + s.slice(-2);
   }
 
+  // ---------- Public verification (QR) ----------
+  // 128-bit random token per certificate; the QR carries it so a scan proves possession of the real certificate.
+  function newVerificationToken() {
+    const b = crypto.getRandomValues(new Uint8Array(16));
+    return btoa(String.fromCharCode.apply(null, b)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  }
+  function verifyQrUrl(settings, reference, token) {
+    if (!settings.qrEnabled) return null;
+    if (!reference) return settings.verifyUrl;
+    return settings.verifyUrl + '?ref=' + encodeURIComponent(reference) + (token ? '&t=' + encodeURIComponent(token) : '');
+  }
+  // Local register record -> certificates table row (only columns the schema defines; DB assigns id/uuid links).
+  function toDbCertificate(r) {
+    const k = ['certificate_reference', 'file_safe_reference', 'base_reference', 'revision_number', 'sequence_number', 'registration_id',
+      'full_name_at_issue', 'id_type_at_issue', 'id_number_at_issue', 'course_name_at_issue', 'intake_month', 'intake_year',
+      'award_date', 'issue_date', 'generated_at', 'formative_mark', 'original_exam_mark', 'resit_mark', 'effective_exam_mark',
+      'overall_mark', 'payment_status', 'eligibility_override', 'override_reason', 'status', 'template_version', 'pdf_hash',
+      'reprint_count', 'verification_token'];
+    const row = { course_code_at_issue: r.course_code };
+    k.forEach((f) => { if (r[f] !== undefined) row[f] = r[f] === '' ? null : r[f]; });
+    return row;
+  }
+
   async function sha256Hex(bytes) {
     const h = await crypto.subtle.digest('SHA-256', bytes);
     return Array.from(new Uint8Array(h)).map((b) => b.toString(16).padStart(2, '0')).join('');
@@ -252,9 +275,9 @@
   };
 
   // ---------- Supabase adapter (used once configured in Settings) ----------
-  function makeSupabase(url, anonKey) {
-    if (!window.supabase || !url || !anonKey) return null;
-    const client = window.supabase.createClient(url, anonKey);
+  function makeSupabase(url, publishableKey, options) {
+    if (!window.supabase || !url || !publishableKey) return null;
+    const client = window.supabase.createClient(url, publishableKey, options);
     return {
       mode: 'supabase', client,
       async signIn(email, password) {
@@ -264,6 +287,11 @@
         return { email: data.user.email, name: (prof && prof.full_name) || data.user.email, role: (prof && prof.role) || 'Viewer' };
       },
       async signOut() { await client.auth.signOut(); },
+      // Supabase never reveals whether the address exists; callers must also show neutral wording.
+      async requestPasswordReset(email, redirectTo) {
+        const { error } = await client.auth.resetPasswordForEmail(email, { redirectTo });
+        if (error) throw error;
+      },
       async reserveReference(course_code, intake_year, intake_month, issueDate) {
         const { data, error } = await client.rpc('reserve_certificate_reference', {
           p_course_code: course_code, p_intake_year: +intake_year, p_intake_month: intake_month, p_issue_date: isoDate(issueDate)
@@ -271,7 +299,19 @@
         if (error) throw error;
         return data; // { reference, sequence, ... }
       },
-      async insertCertificate(rec) { const { data, error } = await client.from('certificates').insert(rec).select().single(); if (error) throw error; return data; },
+      async insertCertificate(rec) {
+        const { data: s } = await client.auth.getSession();
+        const row = Object.assign({}, rec, { generated_by: s && s.session ? s.session.user.id : null });
+        const { data, error } = await client.from('certificates').insert(row).select('id').single();
+        if (error) throw error; return data;
+      },
+      async setCertificateStatus(reference, status) {
+        const { data, error } = await client.from('certificates').update({ status, updated_at: new Date().toISOString() })
+          .eq('certificate_reference', reference).select('id');
+        if (error) throw error;
+        if (!data || data.length !== 1) { const e = new Error('Certificate ' + reference + ' is not in the central register.'); e.notCentral = true; throw e; }
+        return data[0];
+      },
       async updateCertificate(id, patch) { const { error } = await client.from('certificates').update(patch).eq('id', id); if (error) throw error; },
       async addEvent(ev) { const { error } = await client.from('certificate_events').insert(ev); if (error) throw error; },
       async listCertificates() { const { data, error } = await client.from('certificates').select('*').order('created_at', { ascending: false }); if (error) throw error; return data; },
@@ -577,7 +617,7 @@
         const qx = X(L.qr.x), qyTop = Y(L.qr.y);
         for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (qr.isDark(r, c))
           page.drawRectangle({ x: qx + c * cell, y: qyTop - (r + 1) * cell, width: cell + 0.15, height: cell + 0.15, color: C.navyInk });
-        page.drawText('Scan to verify', { x: qx + size / 2 - sans.widthOfTextAtSize('Scan to verify', 6.5) / 2, y: qyTop - size - 4.5, size: 6.5, font: sans, color: C.slate });
+        page.drawText('Scan to verify', { x: qx + size / 2 - sans.widthOfTextAtSize('Scan to verify', 6.5) / 2, y: qyTop - size - 6.5, size: 6.5, font: sans, color: C.slate }); // clear of the QR quiet zone
       } catch (e) { /* QR optional */ }
     }
 
@@ -643,7 +683,7 @@
     INSTITUTION_DEFAULTS, FIELDS, NAME_FIT_PRESETS,
     norm, detectMapping, colLetter, excelSerialToDate, parseDateAny, fmtDate, isoDate, monthCode,
     resolveCourse, paymentCategory, rowToLearner, isBlankRow, validateLearner,
-    buildReference, fileSafe, certFilename, maskId, sha256Hex,
+    buildReference, fileSafe, certFilename, maskId, sha256Hex, newVerificationToken, verifyQrUrl, toDbCertificate,
     LocalDB, makeSupabase, renderCertificatePDF, nameStartSize,
     makeTemplateWorkbook, downloadBlob, dataUrlToBytes
   };

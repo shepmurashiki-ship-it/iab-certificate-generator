@@ -3,10 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<script>/* recovery links that land here (old Site URL) are forwarded to the reset page before any client can consume them */
+if (/(^#|&)(type=recovery|error_code=)/.test(location.hash)) location.replace('reset-password.html' + location.hash);</script>
 <script src="./support.js"></script>
 <template id="__bundler_thumbnail"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#173A5E"/><text x="50" y="62" font-size="34" text-anchor="middle" fill="#D4AF37" font-family="Georgia,serif">iAB</text></svg></template></head>
 <body>
-<!-- iAB Certificate Generator — PRODUCTION build. Requires Supabase configuration (see README.md). -->
+<!-- iAB Certificate Generator — PRODUCTION build. Supabase connection comes from config.js (see README.md). -->
 <x-dc>
 <helmet>
   <link rel="icon" href="assets/iab-favicon.png">
@@ -23,6 +25,7 @@
   <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="config.js"></script>
   <script>window.DEPLOYMENT_CONFIG = { production: true, verificationPage: "./verify.html" };</script><script src="src/engine.js"></script>
   <style>
     html, body { margin: 0; padding: 0; background: #F2F0EA; }
@@ -45,26 +48,42 @@
       </div>
       <div style="background:#FFFFFF;border:1px solid #EFEDE7;border-radius:10px;box-shadow:0 18px 50px rgba(4,10,20,0.45);padding:32px">
         <div style="font-size:11px;letter-spacing:0.22em;color:#A8801F;font-weight:600;margin-bottom:6px">CERTIFICATE MANAGEMENT</div>
+        <sc-if value="{{ isSignIn }}" hint-placeholder-val="{{ true }}">
         <div style="font-family:'Newsreader',serif;font-size:26px;color:#16233B;line-height:1.15;margin-bottom:4px">Staff sign in</div>
         <div style="font-size:13px;color:#5A6474;margin-bottom:22px">Certificate generator, register &amp; reprint system</div>
         <div style="display:flex;flex-direction:column;gap:14px">
           <label style="display:flex;flex-direction:column;gap:6px">
             <span style="font-size:11px;letter-spacing:0.1em;color:#5A6474;font-weight:600">EMAIL</span>
-            <input type="email" value="{{ email }}" onChange="{{ onEmail }}" placeholder="name@iab.co.bw" style="border:1px solid #DAD6CC;border-radius:5px;padding:10px 12px;font-size:14px;outline-color:#2E6BD6">
+            <input type="email" autocomplete="username" value="{{ email }}" onChange="{{ onEmail }}" placeholder="name@iab.co.bw" style="border:1px solid #DAD6CC;border-radius:5px;padding:10px 12px;font-size:14px;outline-color:#2E6BD6">
           </label>
-          <label style="display:flex;flex-direction:column;gap:6px">
-            <span style="font-size:11px;letter-spacing:0.1em;color:#5A6474;font-weight:600">PASSWORD</span>
-            <input type="password" value="{{ pw }}" onChange="{{ onPw }}" onKeyDown="{{ onPwKey }}" style="border:1px solid #DAD6CC;border-radius:5px;padding:10px 12px;font-size:14px;outline-color:#2E6BD6">
-          </label>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:11px;letter-spacing:0.1em;color:#5A6474;font-weight:600">PASSWORD</span><button type="button" onClick="{{ openForgot }}" style="background:none;border:none;padding:0;color:#A8801F;font-size:12.5px;font-weight:600;cursor:pointer;letter-spacing:0.02em" style-hover="color:#C89B2D;text-decoration:underline">Forgot password?</button></div>
+            <input type="password" aria-label="Password" autocomplete="current-password" value="{{ pw }}" onChange="{{ onPw }}" onKeyDown="{{ onPwKey }}" style="border:1px solid #DAD6CC;border-radius:5px;padding:10px 12px;font-size:14px;outline-color:#2E6BD6">
+          </div>
           <sc-if value="{{ err }}" hint-placeholder-val="{{ false }}">
-            <div style="background:#F7E7E3;color:#B0402F;border-radius:5px;padding:9px 12px;font-size:13px">{{ err }}</div>
+            <div role="alert" style="background:#F7E7E3;color:#B0402F;border-radius:5px;padding:9px 12px;font-size:13px">{{ err }}</div>
           </sc-if>
           <button onClick="{{ onLogin }}" style="background:#0A1628;color:#FFFFFF;border:none;border-radius:5px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;letter-spacing:0.04em" style-hover="background:#1E3150">{{ loginLabel }}</button>
-          <sc-if value="{{ showSetupBtn }}" hint-placeholder-val="{{ false }}">
-            <div style="background:#FBF1DF;color:#8A5D12;border-radius:5px;padding:9px 12px;font-size:12.5px;line-height:1.5">Production database and authentication have not yet been configured.</div>
-            <button onClick="{{ openSetup }}" style="background:#FFFFFF;color:#16233B;border:1px solid #C89B2D;border-radius:5px;padding:11px;font-size:12.5px;font-weight:600;cursor:pointer;letter-spacing:0.06em" style-hover="background:#FBF7EC">CONFIGURE SUPABASE CONNECTION</button>
+          <sc-if value="{{ configBroken }}" hint-placeholder-val="{{ false }}">
+            <div role="alert" style="background:#FBF1DF;color:#8A5D12;border-radius:5px;padding:9px 12px;font-size:12.5px;line-height:1.5">Sign-in is unavailable because the production connection is not configured correctly. Please contact the iAB system administrator.</div>
           </sc-if>
         </div>
+        </sc-if>
+        <sc-if value="{{ isForgot }}" hint-placeholder-val="{{ false }}">
+        <div style="font-family:'Newsreader',serif;font-size:26px;color:#16233B;line-height:1.15;margin-bottom:4px">Reset your password</div>
+        <div style="font-size:13px;color:#5A6474;margin-bottom:22px;line-height:1.55">Enter your staff email address. If it belongs to an authorised account, we will email you a secure link to set a new password.</div>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <label style="display:flex;flex-direction:column;gap:6px">
+            <span style="font-size:11px;letter-spacing:0.1em;color:#5A6474;font-weight:600">STAFF EMAIL</span>
+            <input type="email" autocomplete="username" value="{{ email }}" onChange="{{ onEmail }}" onKeyDown="{{ onForgotKey }}" placeholder="name@iab.co.bw" style="border:1px solid #DAD6CC;border-radius:5px;padding:10px 12px;font-size:14px;outline-color:#2E6BD6">
+          </label>
+          <sc-if value="{{ forgotMsg }}" hint-placeholder-val="{{ false }}">
+            <div role="status" style="background:{{ forgotMsgBg }};color:{{ forgotMsgFg }};border-radius:5px;padding:9px 12px;font-size:13px;line-height:1.5">{{ forgotMsg }}</div>
+          </sc-if>
+          <button onClick="{{ onForgotSend }}" disabled="{{ forgotBusy }}" style="background:#0A1628;color:#FFFFFF;border:none;border-radius:5px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;letter-spacing:0.04em" style-hover="background:#1E3150">{{ forgotLabel }}</button>
+          <button type="button" onClick="{{ closeForgot }}" style="background:none;border:none;padding:0;color:#A8801F;font-size:12.5px;font-weight:600;cursor:pointer;letter-spacing:0.02em;align-self:center" style-hover="color:#C89B2D;text-decoration:underline">← Back to sign in</button>
+        </div>
+        </sc-if>
       </div>
       <div style="text-align:center;margin-top:18px;font-size:11.5px;color:#AEB8C7">Learner information and certificates are stored securely and may be accessed only by authorised iAB staff.</div>
     </div>
@@ -368,7 +387,7 @@
           <div style="position:absolute;left:26mm;top:256.3mm;color:#5A6474;font-size:8.5pt">Issued: {{ pvIssue }}</div>
           <sc-if value="{{ pvHasQr }}" hint-placeholder-val="{{ false }}">
             <div style="position:absolute;left:168mm;top:249mm;width:14mm;height:14mm;background-image:url({{ pvQr }});background-size:contain;background-repeat:no-repeat;background-position:center"></div>
-            <div style="position:absolute;left:164mm;top:263.3mm;width:22mm;text-align:center;color:#5A6474;font-size:6.5pt">Scan to verify</div>
+            <div style="position:absolute;left:164mm;top:264mm;width:22mm;text-align:center;color:#5A6474;font-size:6.5pt">Scan to verify</div>
           </sc-if>
           <!-- footer band (band, rule, mark and divider are baked art) -->
           <div style="position:absolute;left:45.5mm;top:271.8mm;color:#FFFFFF;font-size:9.5pt;font-weight:700;letter-spacing:0.14em">{{ setNameUpper }}</div>
@@ -527,15 +546,7 @@
         </div>
         <div style="background:#FFFFFF;border:1px solid #EFEDE7;border-radius:8px;padding:22px">
           <div style="font-size:11px;letter-spacing:0.14em;color:#5A6474;font-weight:600;margin-bottom:6px">DATABASE CONNECTION</div>
-          <div style="font-size:12px;color:#5A6474;margin-bottom:12px;line-height:1.6">Currently: <strong style="color:#16233B">{{ modeLabel }}</strong>. Connect the iAB Supabase project (URL + anon public key only — never a service-role key) to share the register across staff and devices with row-level security. Setup: see <span style="font-family:'IBM Plex Mono',monospace">README.md</span> and <span style="font-family:'IBM Plex Mono',monospace">database/</span>.</div>
-          <label style="display:flex;flex-direction:column;gap:4px;margin-bottom:10px">
-            <span style="font-size:10.5px;letter-spacing:0.08em;color:#5A6474;font-weight:600">SUPABASE PROJECT URL</span>
-            <input value="{{ setSupaUrl }}" data-key="supabaseUrl" onChange="{{ onSetField }}" disabled="{{ settingsLocked }}" placeholder="https://xxxx.supabase.co" style="border:1px solid #DAD6CC;border-radius:4px;padding:8px 10px;font-size:13px;font-family:'IBM Plex Mono',monospace">
-          </label>
-          <label style="display:flex;flex-direction:column;gap:4px">
-            <span style="font-size:10.5px;letter-spacing:0.08em;color:#5A6474;font-weight:600">SUPABASE ANON PUBLIC KEY</span>
-            <input value="{{ setSupaKey }}" data-key="supabaseAnonKey" onChange="{{ onSetField }}" disabled="{{ settingsLocked }}" placeholder="eyJ…" style="border:1px solid #DAD6CC;border-radius:4px;padding:8px 10px;font-size:13px;font-family:'IBM Plex Mono',monospace">
-          </label>
+          <div style="font-size:12px;color:#5A6474;line-height:1.7">Status: <strong style="color:#16233B">{{ modeLabel }}</strong><br>Project: <span style="font-family:'IBM Plex Mono',monospace;color:#16233B">{{ supaProject }}</span><br>Publishable key: <span style="font-family:'IBM Plex Mono',monospace;color:#16233B">{{ supaFingerprint }}</span><br>Set centrally in <span style="font-family:'IBM Plex Mono',monospace">config.js</span> (publishable key only, protected by row-level security). It cannot be changed from this browser.</div>
         </div>
         <sc-if value="{{ recCanAdminSettings }}" hint-placeholder-val="{{ false }}">
           <div style="background:#FFFFFF;border:1px solid #EFEDE7;border-radius:8px;padding:22px">
@@ -577,32 +588,6 @@
   </div>
 </sc-if>
 
-<!-- ======================= SUPABASE SETUP MODAL ======================= -->
-<sc-if value="{{ setupOpen }}" hint-placeholder-val="{{ false }}">
-  <div style="position:fixed;inset:0;background:rgba(10,22,40,0.55);display:flex;align-items:center;justify-content:center;z-index:80;padding:24px">
-    <div style="background:#FFFFFF;border-radius:10px;box-shadow:0 24px 70px rgba(4,10,20,0.5);width:500px;max-width:94vw;padding:28px">
-      <div style="font-family:'Newsreader',serif;font-size:21px;color:#16233B;margin-bottom:8px">Configure Supabase connection</div>
-      <div style="background:#FBF1DF;color:#8A5D12;border-radius:5px;padding:10px 12px;font-size:12.5px;line-height:1.55;margin-bottom:16px">Enter only the Supabase Project URL and publishable key. Never enter a service-role key, secret key or database password.</div>
-      <label style="display:flex;flex-direction:column;gap:5px;margin-bottom:12px">
-        <span style="font-size:10.5px;letter-spacing:0.08em;color:#5A6474;font-weight:600">SUPABASE PROJECT URL</span>
-        <input value="{{ setupUrl }}" onChange="{{ onSetupUrl }}" placeholder="https://xxxxxxxxxxxxxxxx.supabase.co" style="border:1px solid #DAD6CC;border-radius:4px;padding:9px 11px;font-size:13px;font-family:'IBM Plex Mono',monospace">
-      </label>
-      <label style="display:flex;flex-direction:column;gap:5px;margin-bottom:12px">
-        <span style="font-size:10.5px;letter-spacing:0.08em;color:#5A6474;font-weight:600">SUPABASE PUBLISHABLE KEY</span>
-        <input value="{{ setupKey }}" onChange="{{ onSetupKey }}" placeholder="sb_publishable_xxxxxxxxxxxxxxxxx" style="border:1px solid #DAD6CC;border-radius:4px;padding:9px 11px;font-size:13px;font-family:'IBM Plex Mono',monospace">
-      </label>
-      <sc-if value="{{ setupMsg }}" hint-placeholder-val="{{ false }}">
-        <div style="background:{{ setupMsgBg }};color:{{ setupMsgFg }};border-radius:5px;padding:9px 12px;font-size:12.5px;margin-bottom:12px;line-height:1.5">{{ setupMsg }}</div>
-      </sc-if>
-      <div style="display:flex;gap:10px;justify-content:flex-end">
-        <button onClick="{{ setupCancel }}" style="background:#FFFFFF;border:1px solid #DAD6CC;border-radius:5px;padding:10px 16px;font-size:13px;cursor:pointer;color:#16233B">Cancel</button>
-        <button onClick="{{ setupTest }}" style="background:#FFFFFF;border:1px solid #C89B2D;border-radius:5px;padding:10px 16px;font-size:13px;cursor:pointer;color:#16233B;font-weight:600" style-hover="background:#FBF7EC">{{ setupTestLabel }}</button>
-        <button onClick="{{ setupSave }}" disabled="{{ setupSaveDisabled }}" style="background:#0A1628;color:#FFFFFF;border:none;border-radius:5px;padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer;opacity:{{ setupSaveOpacity }}">Save connection</button>
-      </div>
-    </div>
-  </div>
-</sc-if>
-
 <!-- ======================= BULK PROGRESS ======================= -->
 <sc-if value="{{ bulkRunning }}" hint-placeholder-val="{{ false }}">
   <div style="position:fixed;inset:0;background:rgba(10,22,40,0.55);display:flex;align-items:center;justify-content:center;z-index:70;padding:24px">
@@ -635,7 +620,7 @@ class Component extends DCLogic {
     selected: {}, previewIdx: 0, zoom: 0.75, previewList: [],
     regQuery: '', regCourse: '', regStatus: '', regIntake: '',
     recordId: null, modal: null, bulk: null, toast: '', dbTick: 0,
-    setupOpen: false, setupUrl: '', setupKey: '', setupMsg: '', setupMsgKind: '', setupTested: false, setupTesting: false
+    forgot: false, forgotBusy: false, forgotMsg: '', forgotMsgKind: ''
   };
   E() { return window.IABEngine; }
   componentDidMount() {
@@ -646,9 +631,12 @@ class Component extends DCLogic {
     this._recs = []; this._valid = {}; this._pdfCache = {};
     const s = sessionStorage.getItem('iab_cert_session');
     if (s) { try { this.setState({ session: JSON.parse(s), view: 'dashboard' }); } catch (e) {} }
-    this._supa = null;
+    // Connection comes only from config.js. Older builds saved a per-browser URL/key: drop it so it can never override production.
     const st = this._db.settings;
-    if (st.supabaseUrl && st.supabaseAnonKey) this._supa = this.E().makeSupabase(st.supabaseUrl, st.supabaseAnonKey);
+    if ('supabaseUrl' in st || 'supabaseAnonKey' in st) { delete st.supabaseUrl; delete st.supabaseAnonKey; this.E().LocalDB.save(this._db); }
+    if (!st.verifyUrl || st.verifyUrl === 'https://iab.co.bw/verify') { st.verifyUrl = this.E().INSTITUTION_DEFAULTS.verifyUrl; this.E().LocalDB.save(this._db); }
+    const C = window.IAB_SUPABASE;
+    this._supa = C && C.ok ? this.E().makeSupabase(C.url, C.publishableKey, C.authOptions) : null;
     this.forceUpdate();
   }
   saveDB() { this.E().LocalDB.save(this._db); this.setState(s => ({ dbTick: s.dbTick + 1 })); }
@@ -662,48 +650,21 @@ class Component extends DCLogic {
 
   // ---------- auth ----------
   isProduction() { return !!(window.DEPLOYMENT_CONFIG && window.DEPLOYMENT_CONFIG.production); }
-  validateSetup(url, key) {
-    url = (url || '').trim(); key = (key || '').trim();
-    if (!/^https:\/\//.test(url)) return 'The project URL must begin with https://';
-    if (!/\.supabase\.co\/?$/.test(url)) return 'The project URL must end with .supabase.co';
-    if (!key) return 'The publishable key is required.';
-    if (/^sb_secret_/i.test(key)) return 'That is a SECRET key. Never enter a secret key here — use the publishable key.';
-    if (/service_role/i.test(key)) return 'That key contains a service_role claim. Never enter a service-role key here.';
-    if (/postgres(ql)?:\/\//i.test(key) || /postgres(ql)?:\/\//i.test(url)) return 'Database connection strings must never be entered here.';
-    if (/\s/.test(key)) return 'The key must not contain spaces.';
-    return null;
-  }
-  async testSetup(save) {
-    const url = this.state.setupUrl.trim().replace(/\/$/, ''), key = this.state.setupKey.trim();
-    const bad = this.validateSetup(url, key);
-    if (bad) { this.setState({ setupMsg: bad, setupMsgKind: 'err', setupTested: false }); return false; }
-    this.setState({ setupTesting: true, setupMsg: 'Testing connection…', setupMsgKind: 'info' });
+  async requestReset() {
+    const email = (this.state.email || '').trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { this.setState({ forgotMsg: 'Enter a valid email address.', forgotMsgKind: 'err' }); return; }
+    if (!this._supa) { this.setState({ forgotMsg: 'Password recovery is currently unavailable. Please contact the iAB system administrator.', forgotMsgKind: 'err' }); return; }
+    this.setState({ forgotBusy: true, forgotMsg: '' });
+    const neutral = 'If an authorised account exists for this email address, password recovery instructions have been sent.';
+    let msg = neutral, kind = 'ok';
     try {
-      if (!window.supabase) throw new Error('Supabase client library not loaded — check your network.');
-      const client = window.supabase.createClient(url, key);
-      const { error } = await client.auth.getSession();
-      if (error) throw error;
-      // confirm the key is accepted by the project (auth settings endpoint responds 200 for valid keys)
-      const r = await fetch(url + '/auth/v1/settings', { headers: { apikey: key, Authorization: 'Bearer ' + key } });
-      if (r.status === 401 || r.status === 403) throw new Error('The project rejected this key (HTTP ' + r.status + '). Check the publishable key.');
-      if (!r.ok) throw new Error('The project responded with HTTP ' + r.status + '. Check the project URL.');
-      this.setState({ setupTesting: false, setupMsg: 'Connection successful.', setupMsgKind: 'ok', setupTested: true });
-      return true;
+      await this._supa.requestPasswordReset(email, new URL('reset-password.html', location.href).href);
     } catch (e) {
-      this.setState({ setupTesting: false, setupMsg: 'Connection failed: ' + (e.message || e), setupMsgKind: 'err', setupTested: false });
-      return false;
+      // Only transport/rate-limit failures are surfaced; every other outcome gets the same neutral wording.
+      if (e && e.status === 429) { msg = 'Too many requests. Please wait a few minutes and try again.'; kind = 'err'; }
+      else if (!e || !e.status || e.status >= 500) { msg = 'Password recovery is temporarily unavailable. Please try again later.'; kind = 'err'; }
     }
-  }
-  async saveSetup() {
-    if (!this.state.setupTested) { const ok = await this.testSetup(); if (!ok) return; }
-    const url = this.state.setupUrl.trim().replace(/\/$/, ''), key = this.state.setupKey.trim();
-    const st = this.settings();
-    st.supabaseUrl = url; st.supabaseAnonKey = key;
-    this._db.settings = st;
-    this._supa = this.E().makeSupabase(url, key);
-    this.saveDB();
-    this.setState({ setupOpen: false, setupMsg: '', setupTested: false });
-    this.showToast('Supabase connection saved. Sign in with your staff account.');
+    this.setState({ forgotBusy: false, forgotMsg: msg, forgotMsgKind: kind });
   }
   async doLogin() {
     const { email, pw } = this.state;
@@ -711,7 +672,8 @@ class Component extends DCLogic {
     try {
       let sess = null;
       if (!this._supa) throw new Error('Production database and authentication have not yet been configured. Please contact the iAB system administrator.');
-      sess = await this._supa.signIn(email, pw);
+      try { sess = await this._supa.signIn(email, pw); }
+      catch (e) { throw new Error(e && e.status && e.status < 500 ? 'Invalid email or password.' : 'The sign-in service is unavailable. Please try again later.'); }
       if (!sess) throw new Error('Invalid email or password.');
       sessionStorage.setItem('iab_cert_session', JSON.stringify(sess));
       this.setState({ session: sess, view: 'dashboard', err: '', busyLogin: false, pw: '' });
@@ -784,7 +746,7 @@ class Component extends DCLogic {
   }
 
   // ---------- certificate model + issue ----------
-  certModel(rec, reference) {
+  certModel(rec, reference, token) {
     const E = this.E(); const st = this.settings();
     const issueDate = new Date(this.state.impIssueDate + 'T00:00:00Z');
     return {
@@ -794,7 +756,7 @@ class Component extends DCLogic {
       award_date: rec.exam_date, award_date_text: rec.exam_date ? E.fmtDate(rec.exam_date) : E.fmtDate(issueDate),
       issue_date: issueDate, issue_date_text: E.fmtDate(issueDate),
       reference: reference || '· · · · (assigned at issue)',
-      qr_url: st.qrEnabled && reference ? (st.verifyUrl + '?ref=' + encodeURIComponent(reference)) : (st.qrEnabled ? st.verifyUrl : null)
+      qr_url: E.verifyQrUrl(st, reference, token)
     };
   }
   async issueRec(rec) {
@@ -809,7 +771,8 @@ class Component extends DCLogic {
     } else {
       ref = E.LocalDB.reserveReference(this._db, rec.course.code, rec.intake_year, rec.intake_month_code, issueDate);
     }
-    const cert = this.certModel(rec, ref.reference);
+    const token = E.newVerificationToken();
+    const cert = this.certModel(rec, ref.reference, token);
     const out = await E.renderCertificatePDF(cert, st, { draft: false });
     const id = 'c' + Date.now() + Math.random().toString(36).slice(2, 6);
     const record = {
@@ -828,7 +791,7 @@ class Component extends DCLogic {
       status: out.preflightOk ? 'Issued' : 'Generation Failed',
       template_version: st.templateVersion, generated_by: this.state.session.email,
       pdf_hash: null, reprint_count: 0, last_reprinted_at: null, supersedes_certificate_id: null,
-      created_at: new Date().toISOString()
+      verification_token: token, created_at: new Date().toISOString()
     };
     if (!out.preflightOk) {
       this._db.certificates.unshift(record);
@@ -838,6 +801,8 @@ class Component extends DCLogic {
       return { failed: true, reason: 'Preflight failed (' + failed + ') — certificate NOT issued.' };
     }
     record.pdf_hash = await E.sha256Hex(out.bytes);
+    // The central register row is what public QR verification reads: no row, no certificate.
+    if (this._supa) await this._supa.insertCertificate(E.toDbCertificate(record));
     this._pdfCache[ref.reference] = out.bytes;
     this._db.certificates.unshift(record);
     if (rec.override) this.audit(id, 'Created', 'Payment-status override: ' + rec.override.reason, { payment_status: rec.payment_status }, null, { override_by: rec.override.by });
@@ -911,7 +876,7 @@ class Component extends DCLogic {
       award_date_text: c.award_date ? E.fmtDate(new Date(c.award_date + 'T00:00:00Z')) : E.fmtDate(new Date(c.issue_date + 'T00:00:00Z')),
       issue_date_text: E.fmtDate(new Date(c.issue_date + 'T00:00:00Z')),
       reference: c.certificate_reference,
-      qr_url: st.qrEnabled ? (st.verifyUrl + '?ref=' + encodeURIComponent(c.certificate_reference)) : null
+      qr_url: E.verifyQrUrl(st, c.certificate_reference, c.verification_token)
     };
   }
   async doReprint(id, reason) {
@@ -947,11 +912,22 @@ class Component extends DCLogic {
       revision_number: rev, full_name_at_issue: next.full_name, id_number_at_issue: next.id_number,
       issue_date: next.issue_date, generated_at: new Date().toISOString(),
       generated_by: this.state.session.email, status: 'Issued', reprint_count: 0,
-      supersedes_certificate_id: c.id, created_at: new Date().toISOString()
+      supersedes_certificate_id: c.id, verification_token: E.newVerificationToken(), created_at: new Date().toISOString()
     });
     const out = await E.renderCertificatePDF(this.certToModel(nc), this.settings(), { draft: false });
     if (!out.preflightOk) { this.showToast('Preflight failed — correction not issued.'); return; }
     nc.pdf_hash = await E.sha256Hex(out.bytes);
+    if (this._supa) {
+      // Supersede first (only one Issued certificate per learner/course/intake), roll back if the new row fails.
+      let old;
+      try { old = await this._supa.setCertificateStatus(c.certificate_reference, 'Superseded'); }
+      catch (e) { this.showToast('Correction not issued: ' + e.message); return; }
+      try { await this._supa.insertCertificate(Object.assign(E.toDbCertificate(nc), { supersedes_certificate_id: old.id })); }
+      catch (e) {
+        await this._supa.setCertificateStatus(c.certificate_reference, 'Issued').catch(() => {});
+        this.showToast('Correction not issued: ' + e.message); return;
+      }
+    }
     this._pdfCache[newRef] = out.bytes;
     c.status = 'Superseded';
     this._db.certificates.unshift(nc);
@@ -1190,22 +1166,20 @@ class Component extends DCLogic {
       isDashboard: S.view === 'dashboard', isImport: S.view === 'import', isPreview: S.view === 'preview',
       isRegister: S.view === 'register', isRecord: S.view === 'record', isSettings: S.view === 'settings',
       email: S.email, pw: S.pw, err: S.err, loginLabel: S.busyLogin ? 'Signing in…' : 'Sign in',
-      showSetupBtn: this.isProduction() && !this._supa,
-      openSetup: () => this.setState({ setupOpen: true, setupMsg: '', setupTested: false }),
-      setupOpen: S.setupOpen, setupUrl: S.setupUrl, setupKey: S.setupKey,
-      setupMsg: S.setupMsg,
-      setupMsgBg: S.setupMsgKind === 'ok' ? '#E7F1EC' : S.setupMsgKind === 'err' ? '#F7E7E3' : '#E6EEFB',
-      setupMsgFg: S.setupMsgKind === 'ok' ? '#1E7A4E' : S.setupMsgKind === 'err' ? '#B0402F' : '#2E6BD6',
-      onSetupUrl: (e) => this.setState({ setupUrl: e.target.value, setupTested: false, setupMsg: '' }),
-      onSetupKey: (e) => this.setState({ setupKey: e.target.value, setupTested: false, setupMsg: '' }),
-      setupCancel: () => this.setState({ setupOpen: false, setupMsg: '' }),
-      setupTest: () => this.testSetup(),
-      setupTestLabel: S.setupTesting ? 'Testing…' : 'Test connection',
-      setupSave: () => this.saveSetup(),
-      setupSaveDisabled: !S.setupTested || S.setupTesting,
-      setupSaveOpacity: (!S.setupTested || S.setupTesting) ? 0.45 : 1,
+      isSignIn: !S.forgot, isForgot: !!S.forgot,
+      configBroken: !this._supa,
+      openForgot: () => this.setState({ forgot: true, forgotMsg: '', err: '', pw: '' }),
+      closeForgot: () => this.setState({ forgot: false, forgotMsg: '' }),
+      onForgotSend: () => this.requestReset(),
+      onForgotKey: (e) => { if (e.key === 'Enter') this.requestReset(); },
+      forgotBusy: S.forgotBusy, forgotLabel: S.forgotBusy ? 'Sending…' : 'Send reset link',
+      forgotMsg: S.forgotMsg,
+      forgotMsgBg: S.forgotMsgKind === 'err' ? '#F7E7E3' : '#E7F1EC',
+      forgotMsgFg: S.forgotMsgKind === 'err' ? '#B0402F' : '#1E7A4E',
+      supaProject: (window.IAB_SUPABASE && window.IAB_SUPABASE.url) || 'not configured',
+      supaFingerprint: (window.IAB_SUPABASE && window.IAB_SUPABASE.fingerprint) || 'not configured',
       userName: (S.session || {}).name || '', userRole: (S.session || {}).role || '',
-      modeLabel: this._supa ? 'Supabase connected' : 'Local demo registry',
+      modeLabel: this._supa ? 'Supabase connected' : 'Not configured',
       navStyleDashboard: navBtn('dashboard'), navStyleImport: navBtn('import'), navStyleRegister: navBtn('register'), navStyleSettings: navBtn('settings'),
       onEmail: (e) => this.setState({ email: e.target.value }),
       onPw: (e) => this.setState({ pw: e.target.value }),
@@ -1279,12 +1253,11 @@ class Component extends DCLogic {
       // settings
       settingsLocked: !this.isAdmin(), settingsSaveOpacity: this.isAdmin() ? 1 : 0.45,
       instFields, payRuleFields, setQrEnabled: sd.qrEnabled,
-      setSupaUrl: sd.supabaseUrl || '', setSupaKey: sd.supabaseAnonKey || '',
       recCanAdminSettings: this.isAdmin() && !this._supa,
       onSetField: (e) => { this.draft()[e.target.getAttribute('data-key')] = e.target.value; this.forceUpdate(); },
       onQrToggle: () => { this.draft().qrEnabled = !this.draft().qrEnabled; this.forceUpdate(); },
       onPayRule: (e) => { const k = e.target.getAttribute('data-key'); this.draft().paymentRules[k] = e.target.value.split(',').map(s => s.trim()).filter(Boolean); this.forceUpdate(); },
-      saveSettings: () => { if (!this.isAdmin()) return; this._db.settings = this.draft(); this._settingsDraft = null; const s2 = this._db.settings; this._supa = (s2.supabaseUrl && s2.supabaseAnonKey) ? E.makeSupabase(s2.supabaseUrl, s2.supabaseAnonKey) : null; this.saveDB(); this.showToast('Settings saved.'); },
+      saveSettings: () => { if (!this.isAdmin()) return; this._db.settings = this.draft(); this._settingsDraft = null; this.saveDB(); this.showToast('Settings saved.'); },
       openResetData: () => this.setState({ modal: { type: 'reset', title: 'Clear local demo registry', body: 'Removes all locally stored demo certificates, counters and audit events on THIS browser. This cannot be undone. Supabase data is never touched by this action.', needsReason: false, confirmLabel: 'Clear demo data' } }),
       // modal
       hasModal: !!S.modal, modalTitle: modal.title || '', modalBody: modal.body || '',
@@ -1318,7 +1291,13 @@ class Component extends DCLogic {
     else if (m.type === 'bulkAwardDate') { this._bulkConfirmed = true; await this.runBulk(); }
     else if (m.type === 'reprint') { await this.doReprint(m.certId, fields.reason); }
     else if (m.type === 'correct') { await this.doCorrect(m.certId, fields, m.reason); }
-    else if (m.type === 'revoke') { const c = this.findCert(m.certId); c.status = 'Revoked'; this.audit(c.id, 'Revoked', m.reason); this.saveDB(); this.showToast(c.certificate_reference + ' revoked.'); }
+    else if (m.type === 'revoke') {
+      const c = this.findCert(m.certId);
+      if (this._supa) {
+        try { await this._supa.setCertificateStatus(c.certificate_reference, 'Revoked'); }
+        catch (e) { if (!e.notCentral) { this.showToast('Revocation failed: ' + e.message); return; } }
+      }
+      c.status = 'Revoked'; this.audit(c.id, 'Revoked', m.reason); this.saveDB(); this.showToast(c.certificate_reference + ' revoked.'); }
     else if (m.type === 'reset') { localStorage.removeItem('iab_cert_registry_v1'); this._db = this.E().LocalDB.load(); this._db.settings = Object.assign({}, this.E().INSTITUTION_DEFAULTS, { paymentRules: JSON.parse(JSON.stringify(this.E().PAYMENT_STATUS_RULES)) }); this._recs = []; this.saveDB(); this.showToast('Local demo registry cleared.'); }
   }
 }

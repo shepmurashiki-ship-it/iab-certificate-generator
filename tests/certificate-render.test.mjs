@@ -58,13 +58,12 @@ for (const c of CASES) {
   const res = await page.evaluate(async ({ c, tpl }) => {
     const E = window.IABEngine;
     const st = JSON.parse(JSON.stringify(E.INSTITUTION_DEFAULTS));
-    st.verifyUrl = 'https://shepmurashiki-ship-it.github.io/iab-certificate-generator/verify.html';
     const course = E.COURSES[c.course];
     const reference = E.buildReference({ course_code: c.course, intake_year: 2026, intake_month: 'MAR', issue_year: 2026, issue_month: 6, sequence: 7 });
     const cert = {
       full_name: c.full_name, id_type: 'Omang', id_number: '463022810', course_name: course.name,
       award_date_text: '5 June 2026', issue_date_text: '12 June 2026', reference,
-      qr_url: st.verifyUrl + '?ref=' + encodeURIComponent(reference)
+      qr_url: E.verifyQrUrl(st, reference, E.newVerificationToken())
     };
     const out = await E.renderCertificatePDF(cert, st, { draft: false });
     let b = ''; const u = out.bytes; for (let i = 0; i < u.length; i += 0x8000) b += String.fromCharCode.apply(null, u.subarray(i, i + 0x8000));
@@ -145,6 +144,7 @@ for (const r of results) {
     const d = g.getImageData(x, y, w, h); const q = window.jsQR(d.data, w, h); return q && q.data;
   }, png);
   assert.equal(decoded, r.qr, r.id + ': QR destination');
+  assert.match(decoded, /^https:\/\/shepmurashiki-ship-it\.github\.io\/iab-certificate-generator\/verify\.html\?ref=IAB%2FCERT%2F[A-Z]+%2F2026MAR%2F202606%2F0007&t=[A-Za-z0-9_-]{22}$/, r.id + ': QR must target the production verify page with a token');
   // preview markup
   assert.deepEqual(r.imgs, [], r.id + ': preview has <img> elements ' + r.imgs);
   assert.ok(!/ACCREDITATION AND RECOGNITION/i.test(r.text), r.id + ': old heading in preview');
@@ -157,5 +157,17 @@ for (const f of ['index.html', 'verify.html', 'src/engine.js'])
   assert.ok(!/(bqa|hrdc)[-_]?logo|ACCREDITATION AND RECOGNITION/i.test(fs.readFileSync(path.join(repo, f), 'utf8')), f + ': regulator logo reference');
 
 fs.writeFileSync(path.join(out, 'results.json'), JSON.stringify({ results, assetRequests }, null, 2));
+// browser record -> certificates row: every column must exist in schema.sql (+ migration 001)
+const tbl = fs.readFileSync(path.join(repo, 'database/schema.sql'), 'utf8').match(/create table certificates \(([\s\S]*?)\n\);/)[1];
+const cols = new Set(tbl.split('\n').map((l) => (l.trim().match(/^([a-z_]+)\s/) || [])[1]).filter(Boolean).concat(['verification_token']));
+const row = await page.evaluate(() => window.IABEngine.toDbCertificate({ id: 'c1', certificate_reference: 'R', course_code: 'LTI', full_name_at_issue: 'N',
+  verification_token: window.IABEngine.newVerificationToken(), generated_by: 'someone@example.invalid', created_at: 'x', supersedes_certificate_id: 'c0', status: 'Issued' }));
+for (const k of Object.keys(row)) assert.ok(cols.has(k), 'unknown certificates column: ' + k);
+assert.ok(!('id' in row) && !('generated_by' in row) && !('supersedes_certificate_id' in row), 'local ids must not reach uuid columns');
+assert.equal(row.course_code_at_issue, 'LTI');
+assert.match(row.verification_token, /^[A-Za-z0-9_-]{22}$/);
+const toks = await page.evaluate(() => Array.from({ length: 200 }, () => window.IABEngine.newVerificationToken()));
+assert.equal(new Set(toks).size, 200, 'tokens must be unique');
+
 await browser.close(); srv.kill();
 console.log('PASS: ' + results.length + ' certificates checked. Output: ' + out);

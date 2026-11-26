@@ -77,6 +77,23 @@ if (!staged) {
   if (!login || !/if \(!this\._supa\) throw/.test(login[0]) || /LocalDB/.test(login[0])) fail('index.html', 'doLogin must be Supabase-only');
   if (/\bsignIn\s*\(\s*db\b/.test(read('src/engine.js'))) fail('src/engine.js', 'local signIn(db, ...) must not exist');
   if (/showDemoHint|Local demo mode/.test(read('index.html'))) fail('index.html', 'demo sign-in hint present');
+
+  // ---- public Supabase config: only the project URL + a publishable key, read only from config.js ----
+  const cfg = read('config.js');
+  const key = (cfg.match(/var publishableKey = '([^']*)'/) || [])[1];
+  if (key === undefined || !/^sb_publishable_[A-Za-z0-9_-]{20,}$/.test(key)) fail('config.js', 'publishableKey must be an sb_publishable_ key');
+  if (!/var url = 'https:\/\/[a-z0-9]{20}\.supabase\.co';/.test(cfg)) fail('config.js', 'url must be a https://<ref>.supabase.co project URL');
+  for (const u of units) for (const { n, text } of u.lines) {
+    if (/sb_secret_[A-Za-z0-9_-]{8,}/.test(text)) fail(`${u.name}:${n}`, 'Supabase secret key');
+    if (/eyJ[A-Za-z0-9_-]{10,}\.eyJ[A-Za-z0-9_-]{10,}/.test(text)) fail(`${u.name}:${n}`, 'JWT literal (legacy anon / service-role key)');
+  }
+  for (const f of ['index.html', 'verify.html', 'reset-password.html']) {
+    const src = read(f);
+    if (!/<script src="config\.js"><\/script>/.test(src)) fail(f, 'must load config.js');
+    for (const m of src.matchAll(/(?:createClient|makeSupabase)\(\s*([^,]+),/g))
+      if (m[1].trim() !== 'C.url') fail(f, 'Supabase client must be built from config.js (IAB_SUPABASE), not browser storage');
+  }
+  if (/openSetup|CONFIGURE SUPABASE CONNECTION|data-key="supabase/.test(read('index.html'))) fail('index.html', 'per-browser Supabase connection override present');
 }
 
 if (problems.length) {
